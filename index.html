@@ -29,6 +29,8 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
+
+  /* BG TEXTURE */
   body::before {
     content:'';
     position:fixed; inset:0; z-index:0;
@@ -37,6 +39,8 @@
       radial-gradient(ellipse 40% 40% at 90% 90%, rgba(52,152,219,0.05) 0%, transparent 60%);
     pointer-events:none;
   }
+
+  /* LOCK OVERLAY */
   #lockOverlay {
     position:fixed; inset:0; z-index:1000;
     background: rgba(10,10,15,0.97);
@@ -145,7 +149,11 @@
     transition: all 0.2s;
   }
   .demo-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* MAIN APP */
   #app { position:relative; z-index:1; display:none; }
+
+  /* HEADER */
   header {
     padding: 24px 32px;
     display: flex;
@@ -157,7 +165,11 @@
     backdrop-filter: blur(12px);
     z-index: 100;
   }
-  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 3px; }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 3px;
+  }
   .logo span { color: var(--gold); }
   .badge-live {
     background: rgba(46,204,113,0.15);
@@ -170,60 +182,283 @@
     display: flex; align-items: center; gap: 6px;
   }
   .dot-live { width:6px; height:6px; border-radius:50%; background:var(--green); animation: pulse 1.5s infinite; }
-  .hero { padding: 60px 32px 40px; text-align: center; max-width: 900px; margin: 0 auto; }
-  .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3rem, 8vw, 6rem); line-height: 0.95; letter-spacing: 2px; margin-bottom: 16px; }
+
+  /* HERO */
+  .hero {
+    padding: 60px 32px 40px;
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
   .hero-title .accent { color: var(--gold); }
   .hero-sub { color: var(--muted); font-size: 1rem; max-width: 500px; margin: 0 auto 40px; line-height: 1.6; }
-  .main-grid { max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  /* MAIN LAYOUT */
+  .main-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
   @media(max-width:768px) { .main-grid { grid-template-columns: 1fr; } }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; position: relative; overflow: hidden; }
-  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity:0.4; }
-  .card-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 2px; color: var(--gold); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .chance-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-  .chance-tab { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
-  .chance-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
-  .input-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px; }
-  .num-input { background: var(--dark2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 6px; text-align: center; color: var(--text); font-family: 'Space Mono', monospace; font-size: 1rem; font-weight: 700; outline: none; transition: border-color 0.2s; width: 100%; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity:0.4;
+  }
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* CHANCE SELECTOR */
+  .chance-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .chance-tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .chance-tab.active {
+    background: var(--gold);
+    color: #000;
+    border-color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* INPUT SORTEOS */
+  .input-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .num-input {
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 6px;
+    text-align: center;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
   .num-input:focus { border-color: var(--gold); }
   .num-input::placeholder { color: var(--muted); font-size: 0.7rem; font-weight: 400; }
-  .row-label { font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; font-family: 'Space Mono', monospace; }
-  .analyze-btn { width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #000; border: none; padding: 14px; border-radius: 10px; font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+
+  .row-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .analyze-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: #000;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
   .analyze-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,200,66,0.3); }
+
+  /* RESULTS */
   .results-card { grid-column: 1 / -1; }
-  .hot-numbers { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin: 24px 0; }
-  .hot-num { background: linear-gradient(135deg, var(--dark3), var(--dark2)); border: 2px solid var(--gold); border-radius: 16px; padding: 20px 28px; text-align: center; position: relative; animation: fadeUp 0.4s ease both; min-width: 120px; }
-  .hot-num:nth-child(1){animation-delay:0.05s} .hot-num:nth-child(2){animation-delay:0.1s} .hot-num:nth-child(3){animation-delay:0.15s} .hot-num:nth-child(4){animation-delay:0.2s} .hot-num:nth-child(5){animation-delay:0.25s}
+  .hot-numbers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin: 24px 0;
+  }
+  .hot-num {
+    background: linear-gradient(135deg, var(--dark3), var(--dark2));
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    padding: 20px 28px;
+    text-align: center;
+    position: relative;
+    animation: fadeUp 0.4s ease both;
+    min-width: 120px;
+  }
+  .hot-num:nth-child(1) { animation-delay: 0.05s; }
+  .hot-num:nth-child(2) { animation-delay: 0.1s; }
+  .hot-num:nth-child(3) { animation-delay: 0.15s; }
+  .hot-num:nth-child(4) { animation-delay: 0.2s; }
+  .hot-num:nth-child(5) { animation-delay: 0.25s; }
   .hot-num-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-  .hot-num-val { font-family: 'Space Mono', monospace; font-size: 2.2rem; font-weight: 700; color: var(--gold); }
+  .hot-num-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
   .hot-num-score { font-size: 0.72rem; color: var(--green); margin-top: 4px; }
-  .rank-badge { position:absolute; top:-10px; right:-10px; background: var(--gold); color: #000; width: 24px; height: 24px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-size: 0.7rem; font-weight: 700; font-family: 'Space Mono', monospace; }
-  .freq-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .rank-badge {
+    position:absolute; top:-10px; right:-10px;
+    background: var(--gold);
+    color: #000;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* FREQ BAR CHART */
+  .freq-chart { margin-top: 16px; }
+  .freq-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+  }
   .freq-num { font-family: 'Space Mono', monospace; font-size: 0.8rem; width: 40px; color: var(--text); }
   .freq-bar-wrap { flex:1; background: var(--dark2); border-radius: 4px; height: 20px; overflow:hidden; }
   .freq-bar { height:100%; background: linear-gradient(90deg, var(--gold), var(--gold2)); border-radius: 4px; transition: width 0.8s ease; width:0%; }
   .freq-count { font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--muted); width:24px; text-align:right; }
-  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-  .stat-box { background: var(--dark2); border-radius: 10px; padding: 14px; text-align: center; }
+
+  /* STATS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat-box {
+    background: var(--dark2);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
   .stat-val { font-family:'Space Mono',monospace; font-size:1.4rem; font-weight:700; color:var(--gold); }
   .stat-lbl { font-size:0.72rem; color:var(--muted); margin-top:4px; }
-  .disclaimer { max-width: 1100px; margin: 0 auto 40px; padding: 0 24px; }
-  .disclaimer-box { background: rgba(231,76,60,0.06); border: 1px solid rgba(231,76,60,0.2); border-radius: 10px; padding: 14px 18px; font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    max-width: 1100px;
+    margin: 0 auto 40px;
+    padding: 0 24px;
+  }
+  .disclaimer-box {
+    background: rgba(231,76,60,0.06);
+    border: 1px solid rgba(231,76,60,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
   .disclaimer-box strong { color: var(--red); }
-  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
   .empty-icon { font-size: 3rem; margin-bottom: 12px; }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.4; transform:scale(0.8); } }
-  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--gold); color:#000; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.85rem; z-index:9999; opacity:0; transition: opacity 0.3s; pointer-events:none; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(16px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.4; transform:scale(0.8); }
+  }
+
+  /* TOAST */
+  .toast {
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--gold); color:#000;
+    padding:10px 24px; border-radius:50px;
+    font-weight:600; font-size:0.85rem;
+    z-index:9999; opacity:0;
+    transition: opacity 0.3s;
+    pointer-events:none;
+  }
   .toast.show { opacity:1; }
-  .section-divider { max-width: 1100px; margin: 0 auto 24px; padding: 0 24px; display: flex; align-items: center; gap: 16px; }
-  .section-divider h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 3px; white-space: nowrap; }
+
+  /* SPAN FULL */
+  .full-width { grid-column: 1 / -1; }
+
+  .section-divider {
+    max-width: 1100px;
+    margin: 0 auto 24px;
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-divider h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 3px;
+    white-space: nowrap;
+  }
   .divider-line { flex:1; height:1px; background:var(--border); }
-  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
-  .period-info { background: var(--dark3); border-radius: 8px; padding: 10px 14px; font-size: 0.78rem; color: var(--muted); margin-bottom: 16px; display: flex; gap: 8px; align-items: center; }
+
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
+
+  .period-info {
+    background: var(--dark3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex; gap: 8px; align-items: center;
+  }
   .period-info span { color: var(--gold); font-family: 'Space Mono', monospace; }
 </style>
 </head>
 <body>
+
+<!-- LOCK OVERLAY -->
 <div id="lockOverlay">
   <div class="lock-box">
     <div class="lock-icon">🔐</div>
@@ -235,7 +470,11 @@
       <div class="wallet-addr" id="walletAddr">TYzJ4hQ47aqHvg7MRmpfXhbvYkhyMXMLLS</div>
       <button class="copy-btn" onclick="copyWallet()">📋 Copiar dirección</button>
     </div>
-    <p style="font-size:0.78rem; color:var(--muted); margin-bottom:16px;">Después de pagar, escríbeme al WhatsApp con tu comprobante y te doy el código de acceso.</p>
+    <div class="wallet-section" style="margin-top:0">
+      <div class="wallet-label">O envía USDT (BEP-20 / BSC):</div>
+      <div class="wallet-addr">TYzJ4hQ47aqHvg7MRmpfXhbvYkhyMXMLLS</div>
+    </div>
+    <p style="font-size:0.78rem; color:var(--muted); margin-bottom:16px;">Después de pagar, escríbeme al WhatsApp o Telegram con tu comprobante y te doy el código de acceso.</p>
     <div class="verify-section">
       <input class="verify-input" type="text" id="accessCode" placeholder="Ingresa tu código de acceso…">
       <button class="unlock-btn" onclick="verifyCode()">DESBLOQUEAR ACCESO</button>
@@ -244,6 +483,8 @@
     <button class="demo-btn" onclick="demoMode()">Ver demo con datos de ejemplo</button>
   </div>
 </div>
+
+<!-- MAIN APP -->
 <div id="app">
   <header>
     <div class="logo">CHANCE<span>IA</span></div>
@@ -252,16 +493,21 @@
       <div style="font-size:0.75rem;color:var(--muted);font-family:'Space Mono',monospace" id="headerChance">—</div>
     </div>
   </header>
+
   <div class="hero">
     <div class="hero-title">ANÁLISIS<br><span class="accent">ESTADÍSTICO</span><br>DEL CHANCE</div>
     <p class="hero-sub">Ingresa los últimos 30 sorteos y obtén los 5 números más frecuentes para jugar los próximos 30 días.</p>
   </div>
+
+  <!-- INPUT SECTION -->
   <div class="section-divider">
     <div class="divider-line"></div>
     <h2>1 — SELECCIONA Y REGISTRA</h2>
     <div class="divider-line"></div>
   </div>
+
   <div class="main-grid">
+    <!-- CHANCE SELECTOR -->
     <div class="card">
       <div class="card-title">🎰 Chance</div>
       <div class="chance-tabs">
@@ -281,6 +527,8 @@
       <div class="period-info">📅 Analizando: <span id="chanceName">Dorado Mañana</span> — últimos 30 sorteos</div>
       <p style="font-size:0.8rem;color:var(--muted);">Selecciona el chance y llena los 30 resultados a la derecha →</p>
     </div>
+
+    <!-- INPUT SORTEOS -->
     <div class="card">
       <div class="card-title">📝 Últimos 30 sorteos</div>
       <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px;">Ingresa solo las 4 cifras de cada resultado (ej: 3847)</p>
@@ -288,6 +536,8 @@
       <button class="analyze-btn" onclick="analyze()">🔥 ANALIZAR AHORA</button>
       <button onclick="fillDemo()" style="width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);padding:10px;border-radius:8px;margin-top:8px;cursor:pointer;font-size:0.82rem;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Llenar con datos de ejemplo</button>
     </div>
+
+    <!-- RESULTS -->
     <div class="card results-card" id="resultsCard">
       <div class="card-title">🔥 Resultados del Análisis</div>
       <div id="resultsContent">
@@ -298,17 +548,25 @@
       </div>
     </div>
   </div>
+
+  <!-- DISCLAIMER -->
   <div class="disclaimer">
     <div class="disclaimer-box">
       <strong>⚠️ Aviso importante:</strong> Esta herramienta realiza únicamente <strong>análisis estadístico de frecuencias históricas</strong>. Los resultados de la lotería son eventos de azar independientes. El análisis de números calientes o fríos <strong>no garantiza ni predice</strong> resultados futuros. Juega con responsabilidad.
     </div>
   </div>
 </div>
+
 <div class="toast" id="toast"></div>
+
 <script>
-  const ACCESS_CODES = ['CHANCE2024', 'CHANCEIA1', 'DEMO123'];
+  // === CONFIG ===
+  const ACCESS_CODES = ['CHANCE2024', 'CHANCEIA1', 'DEMO123']; // Cambia por tus códigos reales
   const WALLET_TRC20 = 'TYzJ4hQ47aqHvg7MRmpfXhbvYkhyMXMLLS';
+
   let currentChance = 'Dorado Mañana';
+
+  // === LOCK ===
   function verifyCode() {
     const code = document.getElementById('accessCode').value.trim().toUpperCase();
     if (ACCESS_CODES.includes(code)) {
@@ -321,16 +579,21 @@
       setTimeout(() => document.getElementById('accessCode').style.borderColor = 'var(--border)', 2000);
     }
   }
+
   function demoMode() {
     document.getElementById('lockOverlay').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    fillDemo(); analyze();
+    fillDemo();
+    analyze();
     showToast('👀 Modo demo activo');
   }
+
   function copyWallet() {
     navigator.clipboard.writeText(WALLET_TRC20);
     showToast('📋 Dirección copiada');
   }
+
+  // === BUILD INPUT GRID ===
   function buildInputGrid() {
     const grid = document.getElementById('inputGrid');
     grid.innerHTML = '';
@@ -340,90 +603,200 @@
       lbl.className = 'row-label';
       lbl.textContent = `S${i+1}`;
       const inp = document.createElement('input');
-      inp.type = 'number'; inp.className = 'num-input';
-      inp.placeholder = '0000'; inp.maxLength = 4; inp.id = `s${i}`;
-      inp.addEventListener('input', function() { if(this.value.length>4) this.value=this.value.slice(0,4); });
-      wrap.appendChild(lbl); wrap.appendChild(inp); grid.appendChild(wrap);
+      inp.type = 'number';
+      inp.className = 'num-input';
+      inp.placeholder = '0000';
+      inp.maxLength = 4;
+      inp.id = `s${i}`;
+      inp.addEventListener('input', function() {
+        if (this.value.length > 4) this.value = this.value.slice(0,4);
+      });
+      wrap.appendChild(lbl);
+      wrap.appendChild(inp);
+      grid.appendChild(wrap);
     }
   }
+
   function selectChance(btn, name) {
     document.querySelectorAll('.chance-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active'); currentChance = name;
+    btn.classList.add('active');
+    currentChance = name;
     document.getElementById('chanceName').textContent = name;
     document.getElementById('headerChance').textContent = name;
+    // Reset results
     document.getElementById('resultsContent').innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><p>Ingresa los 30 sorteos y presiona <strong>Analizar</strong></p></div>`;
   }
+
+  // === DEMO DATA ===
   function fillDemo() {
-    const demo = [1234,5678,9012,3456,7890,2345,6789,123,4567,8901,1357,2468,3579,4680,5791,6802,7913,8024,9135,246,1111,2222,3333,4444,5555,6666,7777,8888,9999,1234];
-    for(let i=0;i<30;i++) { const el=document.getElementById(`s${i}`); if(el) el.value=String(demo[i]).padStart(4,'0'); }
+    const demo = [1234,5678,9012,3456,7890,2345,6789,0123,4567,8901,
+                  1357,2468,3579,4680,5791,6802,7913,8024,9135,0246,
+                  1111,2222,3333,4444,5555,6666,7777,8888,9999,1234];
+    for(let i=0;i<30;i++) {
+      const el = document.getElementById(`s${i}`);
+      if(el) el.value = String(demo[i]).padStart(4,'0');
+    }
   }
+
+  // === ANALYZE ===
   function analyze() {
     const numbers = [];
-    for(let i=0;i<30;i++) {
+    for (let i = 0; i < 30; i++) {
       const val = document.getElementById(`s${i}`)?.value?.trim();
-      if(val && val.length===4 && !isNaN(val)) numbers.push(val);
+      if (val && val.length === 4 && !isNaN(val)) {
+        numbers.push(val.padStart(4,'0'));
+      }
     }
-    if(numbers.length < 10) { showToast('⚠️ Ingresa al menos 10 sorteos para analizar'); return; }
-    const pos = [[],[],[],[]]; const fullFreq = {};
-    numbers.forEach(n => { for(let p=0;p<4;p++) pos[p].push(n[p]); fullFreq[n]=(fullFreq[n]||0)+1; });
-    const posFreq = pos.map(arr => { const f={}; arr.forEach(d=>f[d]=(f[d]||0)+1); return f; });
-    const scored = {};
-    numbers.forEach(n => { let score=0; for(let p=0;p<4;p++) score+=(posFreq[p][n[p]]||0); scored[n]=(scored[n]||0)+score; });
+    if (numbers.length < 10) { showToast('⚠️ Ingresa al menos 10 sorteos para analizar'); return; }
+
+    const pos = [[],[],[],[]];
+    const fullFreq = {};
+    numbers.forEach(n => {
+      for(let p=0;p<4;p++) pos[p].push(n[p]);
+      fullFreq[n] = (fullFreq[n]||0)+1;
+    });
+
+    // Init all digits 0-9 for each position
+    const posFreq = pos.map(arr => {
+      const f = {};
+      for(let d=0;d<=9;d++) f[String(d)]=0;
+      arr.forEach(d => f[d]=(f[d]||0)+1);
+      return f;
+    });
+
+    // HOT digits: top 3 per position
     const hotDigits = posFreq.map(f => Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]));
+    // COLD digits: bottom 3 per position
+    const coldDigits = posFreq.map(f => Object.entries(f).sort((a,b)=>a[1]-b[1]).slice(0,3).map(e=>e[0]));
+
+    // Generate HOT candidates
+    const hotCandidates = {};
     for(let a of hotDigits[0]) for(let b of hotDigits[1]) for(let c of hotDigits[2]) for(let d of hotDigits[3]) {
-      const cand=a+b+c+d;
-      let score=(posFreq[0][a]||0)+(posFreq[1][b]||0)+(posFreq[2][c]||0)+(posFreq[3][d]||0);
-      scored[cand]=(scored[cand]||0)+score*0.8;
+      const cand = a+b+c+d;
+      const score = (posFreq[0][a]||0)+(posFreq[1][b]||0)+(posFreq[2][c]||0)+(posFreq[3][d]||0);
+      hotCandidates[cand] = (hotCandidates[cand]||0) + score;
     }
-    const top5 = Object.entries(scored).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    numbers.forEach(n => { if(hotCandidates[n]) hotCandidates[n] += (fullFreq[n]||0)*5; });
+
+    const top3Hot = [];
+    for(let [num,score] of Object.entries(hotCandidates).sort((a,b)=>b[1]-a[1])) {
+      if(!top3Hot.find(x=>x[0]===num)) top3Hot.push([num, score, 'hot']);
+      if(top3Hot.length >= 3) break;
+    }
+
+    // Generate COLD candidates
+    const hotNums = top3Hot.map(x=>x[0]);
+    const coldCandidates = {};
+    const maxF = numbers.length;
+    for(let a of coldDigits[0]) for(let b of coldDigits[1]) for(let c of coldDigits[2]) for(let d of coldDigits[3]) {
+      const cand = a+b+c+d;
+      if(hotNums.includes(cand)) continue;
+      const score = (maxF-(posFreq[0][a]||0))+(maxF-(posFreq[1][b]||0))+(maxF-(posFreq[2][c]||0))+(maxF-(posFreq[3][d]||0));
+      coldCandidates[cand] = (coldCandidates[cand]||0) + score;
+    }
+
+    const top2Cold = [];
+    for(let [num,score] of Object.entries(coldCandidates).sort((a,b)=>b[1]-a[1])) {
+      if(!top2Cold.find(x=>x[0]===num) && !hotNums.includes(num)) top2Cold.push([num, score, 'cold']);
+      if(top2Cold.length >= 2) break;
+    }
+
+    const final5 = [...top3Hot, ...top2Cold];
     const topRepeated = Object.entries(fullFreq).sort((a,b)=>b[1]-a[1]).slice(0,10);
-    renderResults(top5, topRepeated, numbers, posFreq, numbers.length);
+    renderResults(final5, topRepeated, numbers, posFreq, numbers.length);
   }
-  function renderResults(top5, topRepeated, numbers, posFreq, total) {
-    const maxScore = top5[0][1];
+
+  function renderResults(final5, topRepeated, numbers, posFreq, total) {
+    const hot = final5.filter(x=>x[2]==='hot');
+    const cold = final5.filter(x=>x[2]==='cold');
+    const maxHot = hot[0]?.[1]||1;
+    const maxCold = cold[0]?.[1]||1;
+
     let html = `<div class="stats-row">
       <div class="stat-box"><div class="stat-val">${total}</div><div class="stat-lbl">Sorteos analizados</div></div>
       <div class="stat-box"><div class="stat-val">${new Set(numbers).size}</div><div class="stat-lbl">Números únicos</div></div>
-      <div class="stat-box"><div class="stat-val">${top5.length}</div><div class="stat-lbl">Números sugeridos</div></div>
-    </div>
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin-bottom:12px;">🔥 TOP 5 NÚMEROS CALIENTES — JUEGA LOS PRÓXIMOS 30 DÍAS</div>
-    <div class="hot-numbers">`;
-    top5.forEach(([num,score],i) => {
-      const pct=Math.round((score/maxScore)*100);
-      html+=`<div class="hot-num"><div class="rank-badge">${i+1}</div><div class="hot-num-label">N° ${i+1}</div><div class="hot-num-val">${num}</div><div class="hot-num-score">Calor: ${pct}%</div></div>`;
+      <div class="stat-box"><div class="stat-val">3🔥 + 2❄️</div><div class="stat-lbl">Estrategia mixta</div></div>
+    </div>`;
+
+    // HOT section
+    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#F5C842;margin-bottom:12px;">🔥 3 NÚMEROS CALIENTES — Dígitos que más han salido</div>`;
+    html += `<div class="hot-numbers">`;
+    hot.forEach(([num,score],i) => {
+      const pct = Math.round((score/maxHot)*100);
+      html += `<div class="hot-num" style="border-color:var(--gold);">
+        <div class="rank-badge" style="background:var(--gold);">${i+1}</div>
+        <div class="hot-num-label">🔥 CALIENTE</div>
+        <div class="hot-num-val">${num}</div>
+        <div class="hot-num-score" style="color:var(--green);">Frecuencia: ${pct}%</div>
+      </div>`;
     });
-    html += `</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">📊 DÍGITOS MÁS FRECUENTES POR POSICIÓN</div>`;
-    const posNames=['1ª cifra','2ª cifra','3ª cifra','4ª cifra'];
-    html+=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">`;
+    html += `</div>`;
+
+    // COLD section
+    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#3498DB;margin:20px 0 12px;">❄️ 2 NÚMEROS FRÍOS — Dígitos que menos han salido</div>`;
+    html += `<div class="hot-numbers">`;
+    cold.forEach(([num,score],i) => {
+      const pct = Math.round((score/maxCold)*100);
+      html += `<div class="hot-num" style="border-color:#3498DB;">
+        <div class="rank-badge" style="background:#3498DB;">${i+1}</div>
+        <div class="hot-num-label">❄️ FRÍO</div>
+        <div class="hot-num-val" style="color:#3498DB;">${num}</div>
+        <div class="hot-num-score" style="color:#3498DB;">Ausencia: ${pct}%</div>
+      </div>`;
+    });
+    html += `</div>`;
+
+    // Strategy tip
+    html += `<div style="background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.2);border-radius:10px;padding:12px 16px;font-size:0.8rem;color:var(--muted);margin:16px 0;">
+      💡 <strong style="color:var(--text);">Estrategia:</strong> Juega los 3 calientes porque estadísticamente siguen saliendo. Los 2 fríos porque llevan tiempo sin salir y "deben" aparecer. Los 5 son únicos — sin repeticiones entre sí.
+    </div>`;
+
+    // Digit frequency per position
+    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">📊 DÍGITOS POR POSICIÓN</div>`;
+    const posNames = ['1ª cifra','2ª cifra','3ª cifra','4ª cifra'];
+    html += `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">`;
     for(let p=0;p<4;p++) {
-      const entries=Object.entries(posFreq[p]).sort((a,b)=>b[1]-a[1]).slice(0,5);
-      const maxF=entries[0]?.[1]||1;
-      html+=`<div><div style="font-size:0.75rem;color:var(--gold);font-family:'Space Mono',monospace;margin-bottom:8px;">${posNames[p]}</div>`;
+      const entries = Object.entries(posFreq[p]).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      const mxF = entries[0]?.[1]||1;
+      html += `<div><div style="font-size:0.75rem;color:var(--gold);font-family:'Space Mono',monospace;margin-bottom:8px;">${posNames[p]}</div>`;
       entries.forEach(([digit,freq]) => {
-        const w=Math.round((freq/maxF)*100);
-        html+=`<div class="freq-row"><div class="freq-num">${digit}</div><div class="freq-bar-wrap"><div class="freq-bar" style="width:${w}%"></div></div><div class="freq-count">${freq}</div></div>`;
+        const w = Math.round((freq/mxF)*100);
+        html += `<div class="freq-row"><div class="freq-num">${digit}</div><div class="freq-bar-wrap"><div class="freq-bar" style="width:${w}%"></div></div><div class="freq-count">${freq}</div></div>`;
       });
-      html+=`</div>`;
+      html += `</div>`;
     }
-    html+=`</div>`;
-    if(topRepeated.length>0 && topRepeated[0][1]>1) {
-      html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">🔄 NÚMEROS QUE MÁS SE REPITIERON</div><div style="display:flex;flex-wrap:wrap;gap:8px;">`;
+    html += `</div>`;
+
+    if(topRepeated.length > 0 && topRepeated[0][1] > 1) {
+      html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">🔄 NÚMEROS QUE SE REPITIERON</div><div style="display:flex;flex-wrap:wrap;gap:8px;">`;
       topRepeated.filter(([,f])=>f>1).forEach(([num,freq]) => {
-        html+=`<div style="background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'Space Mono',monospace;font-size:0.85rem;">${num} <span style="color:var(--gold)">×${freq}</span></div>`;
+        html += `<div style="background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'Space Mono',monospace;font-size:0.85rem;">${num} <span style="color:var(--gold)">×${freq}</span></div>`;
       });
-      html+=`</div>`;
+      html += `</div>`;
     }
+
     document.getElementById('resultsContent').innerHTML = html;
-    document.getElementById('resultsCard').scrollIntoView({behavior:'smooth',block:'start'});
-    showToast('✅ Análisis completado');
+    document.getElementById('resultsCard').scrollIntoView({behavior:'smooth', block:'start'});
+    showToast('✅ Análisis completado — 3 calientes + 2 fríos');
   }
+
+  // === TOAST ===
   function showToast(msg) {
-    const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
     setTimeout(()=>t.classList.remove('show'),2800);
   }
+
+  // === ACCESS CODE ON ENTER ===
   document.addEventListener('keydown', e => {
-    if(e.key==='Enter') { const o=document.getElementById('lockOverlay'); if(o.style.display!=='none') verifyCode(); }
+    if(e.key==='Enter') {
+      const overlay = document.getElementById('lockOverlay');
+      if(overlay.style.display!=='none') verifyCode();
+    }
   });
+
+  // === INIT ===
   buildInputGrid();
   document.getElementById('headerChance').textContent = currentChance;
 </script>
