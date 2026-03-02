@@ -470,10 +470,7 @@
       <div class="wallet-addr" id="walletAddr">TYzJ4hQ47aqHvg7MRmpfXhbvYkhyMXMLLS</div>
       <button class="copy-btn" onclick="copyWallet()">📋 Copiar dirección</button>
     </div>
-    <div class="wallet-section" style="margin-top:0">
-      <div class="wallet-label">O envía USDT (BEP-20 / BSC):</div>
-      <div class="wallet-addr">TYzJ4hQ47aqHvg7MRmpfXhbvYkhyMXMLLS</div>
-    </div>
+
     <p style="font-size:0.78rem; color:var(--muted); margin-bottom:16px;">Después de pagar, escríbeme al WhatsApp o Telegram con tu comprobante y te doy el código de acceso.</p>
     <div class="verify-section">
       <input class="verify-input" type="text" id="accessCode" placeholder="Ingresa tu código de acceso…">
@@ -803,21 +800,26 @@
       <div style="font-size:0.75rem;color:var(--muted);margin-bottom:16px;">Válidos para los próximos 30 días • No se repiten entre sí</div>
       <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">`;
     final5.forEach(({num}, i) => {
+      const isDemo = window._demoMode;
+      const display = isDemo ? '????': num;
+      const blur = isDemo ? 'filter:blur(6px);user-select:none;' : '';
       html += `<div style="background:var(--dark);border:2px solid var(--gold);border-radius:12px;padding:14px 20px;text-align:center;">
         <div style="font-size:0.65rem;color:var(--muted);margin-bottom:4px;">N° ${i+1}</div>
-        <div style="font-family:'Space Mono',monospace;font-size:2.4rem;font-weight:700;color:var(--gold);letter-spacing:6px;">${num}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:2.4rem;font-weight:700;color:var(--gold);letter-spacing:6px;${blur}">${display}</div>
       </div>`;
     });
-    html += `</div>
+    const demoWarning = window._demoMode ? `<div style="margin-top:12px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:8px;padding:10px;font-size:0.78rem;color:#E74C3C;">🔒 Los números están bloqueados en modo demo. Paga 15 USDT para desbloquear el acceso completo.</div>` : '';
+    html += \`</div>
+      \${demoWarning}
       <div style="margin-top:14px;font-size:0.72rem;color:var(--muted);">⬇️ Desplázate para ver el análisis detallado de cada número</div>
-    </div>`;
+    </div>\`;
 
     html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#F5C842;margin-bottom:8px;">🔍 DETALLE — Composición de cada número (3 dígitos 🔥 + 2 dígitos ❄️)</div>`;
     html += `<p style="font-size:0.75rem;color:var(--muted);margin-bottom:16px;">Cada cifra está marcada: 🔥 caliente (más frecuente en esa posición) / ❄️ frío (menos frecuente)</p>`;
     html += `<div class="hot-numbers">`;
 
     final5.forEach(({num, score, breakdown}, i) => {
-      // Build visual digit display
+      const isDemo = window._demoMode;
       let digitHtml = '<div style="display:flex;gap:4px;justify-content:center;margin:8px 0;">';
       breakdown.forEach(({digit, type, freq}) => {
         const isHot = type==='hot';
@@ -825,18 +827,21 @@
         const border = isHot ? 'rgba(245,200,66,0.5)' : 'rgba(52,152,219,0.5)';
         const color = isHot ? '#F5C842' : '#3498DB';
         const icon = isHot ? '🔥' : '❄️';
+        const d = isDemo ? '?' : digit;
+        const blurStyle = isDemo ? 'filter:blur(4px);' : '';
         digitHtml += `<div style="background:${bg};border:1px solid ${border};border-radius:6px;padding:4px 8px;text-align:center;">
           <div style="font-size:0.6rem;color:${color};">${icon}</div>
-          <div style="font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:${color};">${digit}</div>
-          <div style="font-size:0.55rem;color:var(--muted);">${freq}x</div>
+          <div style="font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:${color};${blurStyle}">${d}</div>
+          <div style="font-size:0.55rem;color:var(--muted);">${isDemo ? '?' : freq}x</div>
         </div>`;
       });
       digitHtml += '</div>';
-
+      const numDisplay = isDemo ? '????' : num;
+      const blurNum = isDemo ? 'filter:blur(5px);' : '';
       html += `<div class="hot-num" style="min-width:160px;padding:16px;">
         <div class="rank-badge">${i+1}</div>
         <div class="hot-num-label">NÚMERO ${i+1}</div>
-        <div style="font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:var(--text);letter-spacing:4px;">${num}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:var(--text);letter-spacing:4px;${blurNum}">${numDisplay}</div>
         ${digitHtml}
       </div>`;
     });
