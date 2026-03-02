@@ -643,9 +643,7 @@
     const numbers = [];
     for (let i = 0; i < 30; i++) {
       const val = document.getElementById(`s${i}`)?.value?.trim();
-      if (val && val.length === 4 && !isNaN(val)) {
-        numbers.push(val.padStart(4,'0'));
-      }
+      if (val && val.length === 4 && !isNaN(val)) numbers.push(val.padStart(4,'0'));
     }
     if (numbers.length < 10) { showToast('⚠️ Ingresa al menos 10 sorteos para analizar'); return; }
 
@@ -656,7 +654,7 @@
       fullFreq[n] = (fullFreq[n]||0)+1;
     });
 
-    // Init all digits 0-9 for each position
+    // Frequency of each digit (0-9) per position
     const posFreq = pos.map(arr => {
       const f = {};
       for(let d=0;d<=9;d++) f[String(d)]=0;
@@ -664,120 +662,218 @@
       return f;
     });
 
-    // HOT digits: top 3 per position
-    const hotDigits = posFreq.map(f => Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]));
-    // COLD digits: bottom 3 per position
-    const coldDigits = posFreq.map(f => Object.entries(f).sort((a,b)=>a[1]-b[1]).slice(0,3).map(e=>e[0]));
+    // Per position: sorted hot (desc) and cold (asc)
+    const hotByPos = posFreq.map(f => Object.entries(f).sort((a,b)=>b[1]-a[1]).map(e=>e[0]));
+    const coldByPos = posFreq.map(f => Object.entries(f).sort((a,b)=>a[1]-b[1]).map(e=>e[0]));
 
-    // Generate HOT candidates
-    const hotCandidates = {};
-    for(let a of hotDigits[0]) for(let b of hotDigits[1]) for(let c of hotDigits[2]) for(let d of hotDigits[3]) {
-      const cand = a+b+c+d;
-      const score = (posFreq[0][a]||0)+(posFreq[1][b]||0)+(posFreq[2][c]||0)+(posFreq[3][d]||0);
-      hotCandidates[cand] = (hotCandidates[cand]||0) + score;
+    // MIXED combinations: each number has exactly 3 hot digits + 2 cold digits
+    // The 3 hot positions and 2 cold positions vary across the 5 numbers
+    // 5 different position masks: which 2 positions are cold
+    const coldMasks = [
+      [2,3], // pos 0,1 hot — pos 2,3 cold
+      [0,3], // pos 1,2 hot — pos 0,3 cold
+      [1,2], // pos 0,3 hot — pos 1,2 cold
+      [0,2], // pos 1,3 hot — pos 0,2 cold
+      [1,3], // pos 0,2 hot — pos 1,3 cold
+    ];
+
+    const final5 = [];
+    const usedNums = new Set();
+
+    for(let mask of coldMasks) {
+      // Build best number: for each position pick best hot or cold digit not creating duplicate number
+      let bestNum = null;
+      // Try top digits for each position
+      for(let hi=0; hi<5 && !bestNum; hi++) {
+        let num = '';
+        for(let p=0;p<4;p++) {
+          if(mask.includes(p)) {
+            // cold position — pick top cold digit
+            num += coldByPos[p][Math.min(hi, coldByPos[p].length-1)];
+          } else {
+            // hot position — pick top hot digit
+            num += hotByPos[p][Math.min(hi, hotByPos[p].length-1)];
+          }
+        }
+        if(!usedNums.has(num)) { bestNum = num; usedNums.add(num); }
+      }
+      if(!bestNum) {
+        // fallback: generate unique combo
+        let num = '';
+        for(let p=0;p<4;p++) num += mask.includes(p) ? coldByPos[p][0] : hotByPos[p][0];
+        let suffix = 0;
+        while(usedNums.has(num) && suffix < 100) { num = String(parseInt(num)+1).padStart(4,'0'); suffix++; }
+        usedNums.add(num); bestNum = num;
+      }
+
+      // Score = sum of positional freq of each digit
+      let score = 0;
+      for(let p=0;p<4;p++) score += (posFreq[p][bestNum[p]]||0);
+
+      // Build digit breakdown
+      const breakdown = [];
+      for(let p=0;p<4;p++) {
+        breakdown.push({ digit: bestNum[p], type: mask.includes(p) ? 'cold' : 'hot', freq: posFreq[p][bestNum[p]]||0 });
+      }
+      final5.push({ num: bestNum, score, breakdown, mask });
     }
-    numbers.forEach(n => { if(hotCandidates[n]) hotCandidates[n] += (fullFreq[n]||0)*5; });
 
-    const top3Hot = [];
-    for(let [num,score] of Object.entries(hotCandidates).sort((a,b)=>b[1]-a[1])) {
-      if(!top3Hot.find(x=>x[0]===num)) top3Hot.push([num, score, 'hot']);
-      if(top3Hot.length >= 3) break;
-    }
-
-    // Generate COLD candidates
-    const hotNums = top3Hot.map(x=>x[0]);
-    const coldCandidates = {};
-    const maxF = numbers.length;
-    for(let a of coldDigits[0]) for(let b of coldDigits[1]) for(let c of coldDigits[2]) for(let d of coldDigits[3]) {
-      const cand = a+b+c+d;
-      if(hotNums.includes(cand)) continue;
-      const score = (maxF-(posFreq[0][a]||0))+(maxF-(posFreq[1][b]||0))+(maxF-(posFreq[2][c]||0))+(maxF-(posFreq[3][d]||0));
-      coldCandidates[cand] = (coldCandidates[cand]||0) + score;
-    }
-
-    const top2Cold = [];
-    for(let [num,score] of Object.entries(coldCandidates).sort((a,b)=>b[1]-a[1])) {
-      if(!top2Cold.find(x=>x[0]===num) && !hotNums.includes(num)) top2Cold.push([num, score, 'cold']);
-      if(top2Cold.length >= 2) break;
-    }
-
-    const final5 = [...top3Hot, ...top2Cold];
+    // === PATTERN ANALYSIS ===
+    const patterns = detectPatterns(numbers, posFreq, fullFreq);
     const topRepeated = Object.entries(fullFreq).sort((a,b)=>b[1]-a[1]).slice(0,10);
-    renderResults(final5, topRepeated, numbers, posFreq, numbers.length);
+    renderResults(final5, topRepeated, numbers, posFreq, patterns, numbers.length);
   }
 
-  function renderResults(final5, topRepeated, numbers, posFreq, total) {
-    const hot = final5.filter(x=>x[2]==='hot');
-    const cold = final5.filter(x=>x[2]==='cold');
-    const maxHot = hot[0]?.[1]||1;
-    const maxCold = cold[0]?.[1]||1;
+  // === PATTERN DETECTION ===
+  function detectPatterns(numbers, posFreq, fullFreq) {
+    const patterns = [];
 
+    // 1. Consecutive numbers pattern (e.g. 1234, 2345)
+    let consecCount = 0;
+    numbers.forEach(n => {
+      let isConsec = true;
+      for(let p=1;p<4;p++) if(parseInt(n[p]) !== parseInt(n[p-1])+1) { isConsec=false; break; }
+      if(isConsec) consecCount++;
+    });
+    if(consecCount > 0) patterns.push({ icon:'📈', label:'Consecutivos ascendentes', desc:`${consecCount} número(s) con dígitos en secuencia creciente (ej: 1234, 5678)`, count: consecCount });
+
+    // 2. Repeated digit pattern (e.g. 1111, 2222, 1122)
+    let doubleCount=0, tripleCount=0, quadCount=0;
+    numbers.forEach(n => {
+      const digits = n.split('');
+      const unique = new Set(digits).size;
+      if(unique===1) quadCount++;
+      else if(unique===2) doubleCount++;
+      else if(unique===3) tripleCount++;
+    });
+    if(quadCount>0) patterns.push({ icon:'💎', label:'Dígito cuádruple', desc:`${quadCount} número(s) con el mismo dígito 4 veces (ej: 1111, 7777)`, count: quadCount });
+    if(doubleCount>0) patterns.push({ icon:'👥', label:'Pares dobles', desc:`${doubleCount} número(s) con solo 2 dígitos distintos (ej: 1122, 3344)`, count: doubleCount });
+
+    // 3. Mirror pattern (palindrome: 1221, 3443)
+    let mirrorCount = numbers.filter(n => n[0]===n[3] && n[1]===n[2]).length;
+    if(mirrorCount>0) patterns.push({ icon:'🪞', label:'Espejo (palíndromo)', desc:`${mirrorCount} número(s) que se leen igual al derecho y al revés (ej: 1221, 3443)`, count: mirrorCount });
+
+    // 4. Even/odd dominance
+    let allEven=0, allOdd=0, evenDom=0, oddDom=0;
+    numbers.forEach(n => {
+      const evens = n.split('').filter(d=>parseInt(d)%2===0).length;
+      const odds = 4 - evens;
+      if(evens===4) allEven++;
+      else if(odds===4) allOdd++;
+      else if(evens>=3) evenDom++;
+      else if(odds>=3) oddDom++;
+    });
+    if(allEven+evenDom>2) patterns.push({ icon:'⚡', label:'Dominancia pares', desc:`${allEven+evenDom} número(s) con mayoría de dígitos pares (0,2,4,6,8)`, count: allEven+evenDom });
+    if(allOdd+oddDom>2) patterns.push({ icon:'🔱', label:'Dominancia impares', desc:`${allOdd+oddDom} número(s) con mayoría de dígitos impares (1,3,5,7,9)`, count: allOdd+oddDom });
+
+    // 5. Sum pattern
+    const sums = numbers.map(n => n.split('').reduce((a,d)=>a+parseInt(d),0));
+    const avgSum = Math.round(sums.reduce((a,b)=>a+b,0)/sums.length);
+    const lowSum = sums.filter(s=>s<=10).length;
+    const highSum = sums.filter(s=>s>=25).length;
+    if(lowSum>3) patterns.push({ icon:'🔻', label:'Suma baja frecuente', desc:`${lowSum} números con suma de dígitos ≤10. Suma promedio: ${avgSum}`, count: lowSum });
+    if(highSum>3) patterns.push({ icon:'🔺', label:'Suma alta frecuente', desc:`${highSum} números con suma de dígitos ≥25. Suma promedio: ${avgSum}`, count: highSum });
+    patterns.push({ icon:'➕', label:'Suma promedio de dígitos', desc:`La suma promedio de los 4 dígitos en los últimos sorteos es ${avgSum}`, count: avgSum, isStat: true });
+
+    // 6. Decade dominance (which tens appear most: 0-9, 10-19, 20-29...)
+    const decades = {};
+    numbers.forEach(n => { const d = Math.floor(parseInt(n)/10)*10; decades[d]=(decades[d]||0)+1; });
+    const topDecade = Object.entries(decades).sort((a,b)=>b[1]-a[1])[0];
+    if(topDecade) patterns.push({ icon:'🎯', label:'Rango más frecuente', desc:`Los números entre ${topDecade[0]} y ${parseInt(topDecade[0])+9} han aparecido ${topDecade[1]} veces`, count: topDecade[1], isStat: true });
+
+    // 7. Last digit pattern
+    const lastDigits = {};
+    numbers.forEach(n => { const d=n[3]; lastDigits[d]=(lastDigits[d]||0)+1; });
+    const topLast = Object.entries(lastDigits).sort((a,b)=>b[1]-a[1])[0];
+    if(topLast && topLast[1]>3) patterns.push({ icon:'🔚', label:`Último dígito "${topLast[0]}" dominante`, desc:`El dígito ${topLast[0]} ha aparecido en la última posición ${topLast[1]} veces`, count: topLast[1] });
+
+    return patterns;
+  }
+
+  function renderResults(final5, topRepeated, numbers, posFreq, patterns, total) {
     let html = `<div class="stats-row">
       <div class="stat-box"><div class="stat-val">${total}</div><div class="stat-lbl">Sorteos analizados</div></div>
       <div class="stat-box"><div class="stat-val">${new Set(numbers).size}</div><div class="stat-lbl">Números únicos</div></div>
-      <div class="stat-box"><div class="stat-val">3🔥 + 2❄️</div><div class="stat-lbl">Estrategia mixta</div></div>
+      <div class="stat-box"><div class="stat-val">🔥🔥🔥❄️❄️</div><div class="stat-lbl">Mezcla por número</div></div>
     </div>`;
 
-    // HOT section
-    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#F5C842;margin-bottom:12px;">🔥 3 NÚMEROS CALIENTES — Dígitos que más han salido</div>`;
+    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#F5C842;margin-bottom:8px;">🎯 5 NÚMEROS MIXTOS — Cada uno con 3 dígitos calientes + 2 fríos</div>`;
+    html += `<p style="font-size:0.75rem;color:var(--muted);margin-bottom:16px;">Cada cifra está marcada: 🔥 caliente (más frecuente en esa posición) / ❄️ frío (menos frecuente)</p>`;
     html += `<div class="hot-numbers">`;
-    hot.forEach(([num,score],i) => {
-      const pct = Math.round((score/maxHot)*100);
-      html += `<div class="hot-num" style="border-color:var(--gold);">
-        <div class="rank-badge" style="background:var(--gold);">${i+1}</div>
-        <div class="hot-num-label">🔥 CALIENTE</div>
-        <div class="hot-num-val">${num}</div>
-        <div class="hot-num-score" style="color:var(--green);">Frecuencia: ${pct}%</div>
+
+    final5.forEach(({num, score, breakdown}, i) => {
+      // Build visual digit display
+      let digitHtml = '<div style="display:flex;gap:4px;justify-content:center;margin:8px 0;">';
+      breakdown.forEach(({digit, type, freq}) => {
+        const isHot = type==='hot';
+        const bg = isHot ? 'rgba(245,200,66,0.15)' : 'rgba(52,152,219,0.15)';
+        const border = isHot ? 'rgba(245,200,66,0.5)' : 'rgba(52,152,219,0.5)';
+        const color = isHot ? '#F5C842' : '#3498DB';
+        const icon = isHot ? '🔥' : '❄️';
+        digitHtml += `<div style="background:${bg};border:1px solid ${border};border-radius:6px;padding:4px 8px;text-align:center;">
+          <div style="font-size:0.6rem;color:${color};">${icon}</div>
+          <div style="font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:${color};">${digit}</div>
+          <div style="font-size:0.55rem;color:var(--muted);">${freq}x</div>
+        </div>`;
+      });
+      digitHtml += '</div>';
+
+      html += `<div class="hot-num" style="min-width:160px;padding:16px;">
+        <div class="rank-badge">${i+1}</div>
+        <div class="hot-num-label">NÚMERO ${i+1}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:var(--text);letter-spacing:4px;">${num}</div>
+        ${digitHtml}
       </div>`;
     });
     html += `</div>`;
 
-    // COLD section
-    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#3498DB;margin:20px 0 12px;">❄️ 2 NÚMEROS FRÍOS — Dígitos que menos han salido</div>`;
-    html += `<div class="hot-numbers">`;
-    cold.forEach(([num,score],i) => {
-      const pct = Math.round((score/maxCold)*100);
-      html += `<div class="hot-num" style="border-color:#3498DB;">
-        <div class="rank-badge" style="background:#3498DB;">${i+1}</div>
-        <div class="hot-num-label">❄️ FRÍO</div>
-        <div class="hot-num-val" style="color:#3498DB;">${num}</div>
-        <div class="hot-num-score" style="color:#3498DB;">Ausencia: ${pct}%</div>
+    html += `<div style="background:rgba(245,200,66,0.05);border:1px solid rgba(245,200,66,0.15);border-radius:10px;padding:12px 16px;font-size:0.78rem;color:var(--muted);margin:12px 0;">
+      💡 <strong style="color:var(--text);">¿Por qué mezclar?</strong> Los 3 dígitos 🔥 aprovechan la tendencia estadística. Los 2 dígitos ❄️ cubren los que "le deben" una aparición. Cada número usa posiciones distintas para maximizar cobertura.
+    </div>`;
+
+    // PATTERN ANALYSIS
+    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">🧮 ANÁLISIS DE PATRONES</div>`;
+    html += `<div style="display:flex;flex-direction:column;gap:8px;">`;
+    patterns.forEach(p => {
+      const color = p.isStat ? '#9B59B6' : (p.count >= 5 ? '#E74C3C' : p.count >= 3 ? '#F5C842' : '#2ECC71');
+      html += `<div style="background:var(--dark2);border-left:3px solid ${color};border-radius:0 8px 8px 0;padding:10px 14px;display:flex;align-items:center;gap:12px;">
+        <div style="font-size:1.2rem;">${p.icon}</div>
+        <div style="flex:1;">
+          <div style="font-size:0.82rem;font-weight:600;color:var(--text);">${p.label}</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">${p.desc}</div>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;color:${color};">${p.count}</div>
       </div>`;
     });
     html += `</div>`;
 
-    // Strategy tip
-    html += `<div style="background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.2);border-radius:10px;padding:12px 16px;font-size:0.8rem;color:var(--muted);margin:16px 0;">
-      💡 <strong style="color:var(--text);">Estrategia:</strong> Juega los 3 calientes porque estadísticamente siguen saliendo. Los 2 fríos porque llevan tiempo sin salir y "deben" aparecer. Los 5 son únicos — sin repeticiones entre sí.
-    </div>`;
-
-    // Digit frequency per position
-    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">📊 DÍGITOS POR POSICIÓN</div>`;
-    const posNames = ['1ª cifra','2ª cifra','3ª cifra','4ª cifra'];
+    // Digit freq per position
+    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">📊 FRECUENCIA POR POSICIÓN</div>`;
+    const posNames=['1ª','2ª','3ª','4ª'];
     html += `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">`;
     for(let p=0;p<4;p++) {
-      const entries = Object.entries(posFreq[p]).sort((a,b)=>b[1]-a[1]).slice(0,5);
-      const mxF = entries[0]?.[1]||1;
-      html += `<div><div style="font-size:0.75rem;color:var(--gold);font-family:'Space Mono',monospace;margin-bottom:8px;">${posNames[p]}</div>`;
-      entries.forEach(([digit,freq]) => {
-        const w = Math.round((freq/mxF)*100);
-        html += `<div class="freq-row"><div class="freq-num">${digit}</div><div class="freq-bar-wrap"><div class="freq-bar" style="width:${w}%"></div></div><div class="freq-count">${freq}</div></div>`;
+      const entries=Object.entries(posFreq[p]).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      const mxF=entries[0]?.[1]||1;
+      html+=`<div><div style="font-size:0.75rem;color:var(--gold);font-family:'Space Mono',monospace;margin-bottom:8px;">${posNames[p]} cifra</div>`;
+      entries.forEach(([digit,freq])=>{
+        const w=Math.round((freq/mxF)*100);
+        html+=`<div class="freq-row"><div class="freq-num">${digit}</div><div class="freq-bar-wrap"><div class="freq-bar" style="width:${w}%"></div></div><div class="freq-count">${freq}</div></div>`;
       });
-      html += `</div>`;
+      html+=`</div>`;
     }
-    html += `</div>`;
+    html+=`</div>`;
 
-    if(topRepeated.length > 0 && topRepeated[0][1] > 1) {
-      html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">🔄 NÚMEROS QUE SE REPITIERON</div><div style="display:flex;flex-wrap:wrap;gap:8px;">`;
-      topRepeated.filter(([,f])=>f>1).forEach(([num,freq]) => {
-        html += `<div style="background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'Space Mono',monospace;font-size:0.85rem;">${num} <span style="color:var(--gold)">×${freq}</span></div>`;
+    if(topRepeated.length>0 && topRepeated[0][1]>1){
+      html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">🔄 NÚMEROS QUE SE REPITIERON</div><div style="display:flex;flex-wrap:wrap;gap:8px;">`;
+      topRepeated.filter(([,f])=>f>1).forEach(([num,freq])=>{
+        html+=`<div style="background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'Space Mono',monospace;font-size:0.85rem;">${num} <span style="color:var(--gold)">×${freq}</span></div>`;
       });
-      html += `</div>`;
+      html+=`</div>`;
     }
 
     document.getElementById('resultsContent').innerHTML = html;
     document.getElementById('resultsCard').scrollIntoView({behavior:'smooth', block:'start'});
-    showToast('✅ Análisis completado — 3 calientes + 2 fríos');
+    showToast('✅ 5 números mixtos + patrones detectados');
   }
 
   // === TOAST ===
