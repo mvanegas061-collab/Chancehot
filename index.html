@@ -574,7 +574,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<div id="demoBanner" onclick="document.getElementById('lockOverlay').style.display='flex';document.getElementById('app').style.display='none';window._demoMode=false;">🔒 NÚMEROS BLOQUEADOS — Toca aquí para comprar acceso</div>
+<div id="demoBanner" onclick="document.getElementById('lockOverlay').style.display='flex';document.getElementById('app').style.display='none';isDemo=false;">🔒 NÚMEROS BLOQUEADOS — Toca aquí para comprar acceso</div>
 
 <script>
   // === CONFIG ===
@@ -598,13 +598,10 @@
   }
 
   function demoMode() {
-    window._demoMode = true;
     document.getElementById('lockOverlay').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     fillDemo();
-    analyze();
-    const banner = document.getElementById('demoBanner');
-    if(banner) banner.style.display = 'block';
+    analyze(true);
     showToast('👀 Demo activo — números bloqueados');
   }
 
@@ -659,7 +656,8 @@
   }
 
   // === ANALYZE ===
-  function analyze() {
+  function analyze(isDemo) {
+    isDemo = isDemo || false;
     const numbers = [];
     for (let i = 0; i < 30; i++) {
       const val = document.getElementById(`s${i}`)?.value?.trim();
@@ -741,7 +739,7 @@
     // === PATTERN ANALYSIS ===
     const patterns = detectPatterns(numbers, posFreq, fullFreq);
     const topRepeated = Object.entries(fullFreq).sort((a,b)=>b[1]-a[1]).slice(0,10);
-    renderResults(final5, topRepeated, numbers, posFreq, patterns, numbers.length);
+    renderResults(final5, topRepeated, numbers, posFreq, patterns, numbers.length, isDemo);
   }
 
   // === PATTERN DETECTION ===
@@ -810,7 +808,8 @@
     return patterns;
   }
 
-  function renderResults(final5, topRepeated, numbers, posFreq, patterns, total) {
+  function renderResults(final5, topRepeated, numbers, posFreq, patterns, total, isDemo) {
+    isDemo = isDemo || false;
     let html = `<div class="stats-row">
       <div class="stat-box"><div class="stat-val">${total}</div><div class="stat-lbl">Sorteos analizados</div></div>
       <div class="stat-box"><div class="stat-val">${new Set(numbers).size}</div><div class="stat-lbl">Números únicos</div></div>
@@ -823,7 +822,7 @@
       <div style="font-size:0.75rem;color:var(--muted);margin-bottom:16px;">Válidos para los próximos 30 días • No se repiten entre sí</div>
       <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">`;
     final5.forEach(({num}, i) => {
-      const isDemo = window._demoMode;
+      const isDemo = isDemo;
       if(isDemo) {
         html += `<div style="background:var(--dark);border:2px solid #E74C3C;border-radius:12px;padding:14px 20px;text-align:center;">
           <div style="font-size:0.65rem;color:var(--muted);margin-bottom:4px;">N° ${i+1}</div>
@@ -836,7 +835,7 @@
         </div>`;
       }
     });
-    const demoWarning = window._demoMode ? `<div style="margin-top:12px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:8px;padding:10px;font-size:0.78rem;color:#E74C3C;">🔒 Los números están bloqueados en modo demo. Paga 15 USDT para desbloquear el acceso completo.</div>` : '';
+    const demoWarning = isDemo ? `<div style="margin-top:12px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:8px;padding:10px;font-size:0.78rem;color:#E74C3C;">🔒 Los números están bloqueados en modo demo. Paga 15 USDT para desbloquear el acceso completo.</div>` : '';
     html += \`</div>
       \${demoWarning}
       <div style="margin-top:14px;font-size:0.72rem;color:var(--muted);">⬇️ Desplázate para ver el análisis detallado de cada número</div>
@@ -847,7 +846,7 @@
     html += `<div class="hot-numbers">`;
 
     final5.forEach(({num, score, breakdown}, i) => {
-      const isDemo = window._demoMode;
+      const isDemo = isDemo;
       let digitHtml = '<div style="display:flex;gap:4px;justify-content:center;margin:8px 0;">';
       breakdown.forEach(({digit, type, freq}) => {
         const isHot = type==='hot';
