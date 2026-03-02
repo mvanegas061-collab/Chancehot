@@ -598,11 +598,25 @@
   }
 
   function demoMode() {
+    window._demoMode = true;
     document.getElementById('lockOverlay').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     fillDemo();
     analyze();
-    showToast('👀 Modo demo activo');
+    setTimeout(() => {
+      document.querySelectorAll('.numero-final').forEach(el => {
+        el.style.filter = 'blur(7px)';
+        el.style.userSelect = 'none';
+        el.textContent = '????';
+      });
+      document.querySelectorAll('.digito-detalle').forEach(el => {
+        el.style.filter = 'blur(5px)';
+        el.textContent = '?';
+      });
+      const banner = document.getElementById('demoBanner');
+      if(banner) banner.style.display = 'block';
+    }, 200);
+    showToast('👀 Demo activo — números bloqueados');
   }
 
   function copyWallet() {
