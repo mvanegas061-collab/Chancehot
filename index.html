@@ -443,6 +443,25 @@
 
   input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
+  #demoBanner {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #E74C3C, #C0392B);
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    z-index: 999;
+    box-shadow: 0 8px 32px rgba(231,76,60,0.4);
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+  }
 
   .period-info {
     background: var(--dark3);
@@ -555,6 +574,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<div id="demoBanner" onclick="document.getElementById('lockOverlay').style.display='flex';document.getElementById('app').style.display='none';window._demoMode=false;">🔒 NÚMEROS BLOQUEADOS — Toca aquí para comprar acceso</div>
 
 <script>
   // === CONFIG ===
@@ -805,7 +825,7 @@
       const blur = isDemo ? 'filter:blur(6px);user-select:none;' : '';
       html += `<div style="background:var(--dark);border:2px solid var(--gold);border-radius:12px;padding:14px 20px;text-align:center;">
         <div style="font-size:0.65rem;color:var(--muted);margin-bottom:4px;">N° ${i+1}</div>
-        <div style="font-family:'Space Mono',monospace;font-size:2.4rem;font-weight:700;color:var(--gold);letter-spacing:6px;${blur}">${display}</div>
+        <div class="numero-final" style="font-family:'Space Mono',monospace;font-size:2.4rem;font-weight:700;color:var(--gold);letter-spacing:6px;${blur}">${display}</div>
       </div>`;
     });
     const demoWarning = window._demoMode ? `<div style="margin-top:12px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:8px;padding:10px;font-size:0.78rem;color:#E74C3C;">🔒 Los números están bloqueados en modo demo. Paga 15 USDT para desbloquear el acceso completo.</div>` : '';
@@ -831,7 +851,7 @@
         const blurStyle = isDemo ? 'filter:blur(4px);' : '';
         digitHtml += `<div style="background:${bg};border:1px solid ${border};border-radius:6px;padding:4px 8px;text-align:center;">
           <div style="font-size:0.6rem;color:${color};">${icon}</div>
-          <div style="font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:${color};${blurStyle}">${d}</div>
+          <div class="digito-detalle" style="font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:${color};${blurStyle}">${d}</div>
           <div style="font-size:0.55rem;color:var(--muted);">${isDemo ? '?' : freq}x</div>
         </div>`;
       });
@@ -841,7 +861,7 @@
       html += `<div class="hot-num" style="min-width:160px;padding:16px;">
         <div class="rank-badge">${i+1}</div>
         <div class="hot-num-label">NÚMERO ${i+1}</div>
-        <div style="font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:var(--text);letter-spacing:4px;${blurNum}">${numDisplay}</div>
+        <div class="numero-final" style="font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:var(--text);letter-spacing:4px;${blurNum}">${numDisplay}</div>
         ${digitHtml}
       </div>`;
     });
