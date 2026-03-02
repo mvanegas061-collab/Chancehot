@@ -797,7 +797,22 @@
       <div class="stat-box"><div class="stat-val">🔥🔥🔥❄️❄️</div><div class="stat-lbl">Mezcla por número</div></div>
     </div>`;
 
-    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#F5C842;margin-bottom:8px;">🎯 5 NÚMEROS MIXTOS — Cada uno con 3 dígitos calientes + 2 fríos</div>`;
+    // === JUEGA ESTOS 5 NÚMEROS — SECCIÓN PRINCIPAL ===
+    html += `<div style="background:linear-gradient(135deg,rgba(245,200,66,0.12),rgba(232,160,32,0.06));border:2px solid rgba(245,200,66,0.4);border-radius:16px;padding:20px;margin-bottom:20px;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--gold);margin-bottom:4px;">🎰 JUEGA ESTOS 5 NÚMEROS</div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:16px;">Válidos para los próximos 30 días • No se repiten entre sí</div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">`;
+    final5.forEach(({num}, i) => {
+      html += `<div style="background:var(--dark);border:2px solid var(--gold);border-radius:12px;padding:14px 20px;text-align:center;">
+        <div style="font-size:0.65rem;color:var(--muted);margin-bottom:4px;">N° ${i+1}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:2.4rem;font-weight:700;color:var(--gold);letter-spacing:6px;">${num}</div>
+      </div>`;
+    });
+    html += `</div>
+      <div style="margin-top:14px;font-size:0.72rem;color:var(--muted);">⬇️ Desplázate para ver el análisis detallado de cada número</div>
+    </div>`;
+
+    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#F5C842;margin-bottom:8px;">🔍 DETALLE — Composición de cada número (3 dígitos 🔥 + 2 dígitos ❄️)</div>`;
     html += `<p style="font-size:0.75rem;color:var(--muted);margin-bottom:16px;">Cada cifra está marcada: 🔥 caliente (más frecuente en esa posición) / ❄️ frío (menos frecuente)</p>`;
     html += `<div class="hot-numbers">`;
 
