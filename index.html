@@ -6,949 +6,467 @@
 <title>ChanceIA — Análisis Estadístico Colombia</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --gold: #F5C842;
-    --gold2: #E8A020;
-    --dark: #0A0A0F;
-    --dark2: #12121A;
-    --dark3: #1A1A28;
-    --card: #16161F;
-    --border: rgba(245,200,66,0.15);
-    --text: #E8E8F0;
-    --muted: #6B6B85;
-    --green: #2ECC71;
-    --red: #E74C3C;
-    --blue: #3498DB;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--dark);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* BG TEXTURE */
-  body::before {
-    content:'';
-    position:fixed; inset:0; z-index:0;
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245,200,66,0.08) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 40% at 90% 90%, rgba(52,152,219,0.05) 0%, transparent 60%);
-    pointer-events:none;
-  }
-
-  /* LOCK OVERLAY */
-  #lockOverlay {
-    position:fixed; inset:0; z-index:1000;
-    background: rgba(10,10,15,0.97);
-    display:flex; align-items:center; justify-content:center;
-    backdrop-filter: blur(10px);
-  }
-  .lock-box {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 48px 40px;
-    max-width: 440px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 0 60px rgba(245,200,66,0.08);
-    animation: fadeUp 0.5s ease;
-  }
-  .lock-icon { font-size: 48px; margin-bottom: 16px; }
-  .lock-box h2 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
-    color: var(--gold);
-    letter-spacing: 2px;
-    margin-bottom: 8px;
-  }
-  .lock-box p { color: var(--muted); margin-bottom: 24px; font-size: 0.9rem; line-height: 1.6; }
-  .price-badge {
-    background: linear-gradient(135deg, var(--gold), var(--gold2));
-    color: #000;
-    font-family: 'Space Mono', monospace;
-    font-weight: 700;
-    font-size: 1.5rem;
-    padding: 12px 32px;
-    border-radius: 50px;
-    display: inline-block;
-    margin-bottom: 24px;
-  }
-  .wallet-section {
-    background: var(--dark3);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 20px;
-    text-align: left;
-  }
-  .wallet-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
-  .wallet-addr {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.78rem;
-    color: var(--gold);
-    word-break: break-all;
-    line-height: 1.5;
-  }
-  .copy-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: all 0.2s;
-  }
-  .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
-  .verify-section { margin-top: 16px; }
-  .verify-input {
-    width: 100%;
-    background: var(--dark2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.85rem;
-    margin-bottom: 12px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .verify-input:focus { border-color: var(--gold); }
-  .verify-input::placeholder { color: var(--muted); }
-  .unlock-btn {
-    width: 100%;
-    background: linear-gradient(135deg, var(--gold), var(--gold2));
-    color: #000;
-    border: none;
-    padding: 14px;
-    border-radius: 10px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.2rem;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  .unlock-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,200,66,0.3); }
-  .lock-note { font-size: 0.75rem; color: var(--muted); margin-top: 16px; }
-  .demo-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    margin-top: 10px;
-    width: 100%;
-    transition: all 0.2s;
-  }
-  .demo-btn:hover { border-color: var(--gold); color: var(--gold); }
-
-  /* MAIN APP */
-  #app { position:relative; z-index:1; display:none; }
-
-  /* HEADER */
-  header {
-    padding: 24px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    position: sticky; top: 0;
-    background: rgba(10,10,15,0.92);
-    backdrop-filter: blur(12px);
-    z-index: 100;
-  }
-  .logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
-    letter-spacing: 3px;
-  }
-  .logo span { color: var(--gold); }
-  .badge-live {
-    background: rgba(46,204,113,0.15);
-    color: var(--green);
-    border: 1px solid rgba(46,204,113,0.3);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.72rem;
-    font-family: 'Space Mono', monospace;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .dot-live { width:6px; height:6px; border-radius:50%; background:var(--green); animation: pulse 1.5s infinite; }
-
-  /* HERO */
-  .hero {
-    padding: 60px 32px 40px;
-    text-align: center;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  .hero-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(3rem, 8vw, 6rem);
-    line-height: 0.95;
-    letter-spacing: 2px;
-    margin-bottom: 16px;
-  }
-  .hero-title .accent { color: var(--gold); }
-  .hero-sub { color: var(--muted); font-size: 1rem; max-width: 500px; margin: 0 auto 40px; line-height: 1.6; }
-
-  /* MAIN LAYOUT */
-  .main-grid {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 24px 60px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
-  @media(max-width:768px) { .main-grid { grid-template-columns: 1fr; } }
-
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    position: relative;
-    overflow: hidden;
-  }
-  .card::before {
-    content:'';
-    position:absolute; top:0; left:0; right:0; height:2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    opacity:0.4;
-  }
-  .card-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.3rem;
-    letter-spacing: 2px;
-    color: var(--gold);
-    margin-bottom: 16px;
-    display: flex; align-items: center; gap: 8px;
-  }
-
-  /* CHANCE SELECTOR */
-  .chance-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 20px;
-  }
-  .chance-tab {
-    padding: 6px 14px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .chance-tab.active {
-    background: var(--gold);
-    color: #000;
-    border-color: var(--gold);
-    font-weight: 600;
-  }
-
-  /* INPUT SORTEOS */
-  .input-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .num-input {
-    background: var(--dark2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 6px;
-    text-align: center;
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    font-size: 1rem;
-    font-weight: 700;
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-  }
-  .num-input:focus { border-color: var(--gold); }
-  .num-input::placeholder { color: var(--muted); font-size: 0.7rem; font-weight: 400; }
-
-  .row-label {
-    font-size: 0.7rem;
-    color: var(--muted);
-    margin-bottom: 4px;
-    font-family: 'Space Mono', monospace;
-  }
-
-  .analyze-btn {
-    width: 100%;
-    background: linear-gradient(135deg, var(--gold), var(--gold2));
-    color: #000;
-    border: none;
-    padding: 14px;
-    border-radius: 10px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.2rem;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 8px;
-  }
-  .analyze-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,200,66,0.3); }
-
-  /* RESULTS */
-  .results-card { grid-column: 1 / -1; }
-  .hot-numbers {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    justify-content: center;
-    margin: 24px 0;
-  }
-  .hot-num {
-    background: linear-gradient(135deg, var(--dark3), var(--dark2));
-    border: 2px solid var(--gold);
-    border-radius: 16px;
-    padding: 20px 28px;
-    text-align: center;
-    position: relative;
-    animation: fadeUp 0.4s ease both;
-    min-width: 120px;
-  }
-  .hot-num:nth-child(1) { animation-delay: 0.05s; }
-  .hot-num:nth-child(2) { animation-delay: 0.1s; }
-  .hot-num:nth-child(3) { animation-delay: 0.15s; }
-  .hot-num:nth-child(4) { animation-delay: 0.2s; }
-  .hot-num:nth-child(5) { animation-delay: 0.25s; }
-  .hot-num-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-  .hot-num-val {
-    font-family: 'Space Mono', monospace;
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--gold);
-  }
-  .hot-num-score { font-size: 0.72rem; color: var(--green); margin-top: 4px; }
-  .rank-badge {
-    position:absolute; top:-10px; right:-10px;
-    background: var(--gold);
-    color: #000;
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    display:flex; align-items:center; justify-content:center;
-    font-size: 0.7rem;
-    font-weight: 700;
-    font-family: 'Space Mono', monospace;
-  }
-
-  /* FREQ BAR CHART */
-  .freq-chart { margin-top: 16px; }
-  .freq-row {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 8px;
-  }
-  .freq-num { font-family: 'Space Mono', monospace; font-size: 0.8rem; width: 40px; color: var(--text); }
-  .freq-bar-wrap { flex:1; background: var(--dark2); border-radius: 4px; height: 20px; overflow:hidden; }
-  .freq-bar { height:100%; background: linear-gradient(90deg, var(--gold), var(--gold2)); border-radius: 4px; transition: width 0.8s ease; width:0%; }
-  .freq-count { font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--muted); width:24px; text-align:right; }
-
-  /* STATS */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .stat-box {
-    background: var(--dark2);
-    border-radius: 10px;
-    padding: 14px;
-    text-align: center;
-  }
-  .stat-val { font-family:'Space Mono',monospace; font-size:1.4rem; font-weight:700; color:var(--gold); }
-  .stat-lbl { font-size:0.72rem; color:var(--muted); margin-top:4px; }
-
-  /* DISCLAIMER */
-  .disclaimer {
-    max-width: 1100px;
-    margin: 0 auto 40px;
-    padding: 0 24px;
-  }
-  .disclaimer-box {
-    background: rgba(231,76,60,0.06);
-    border: 1px solid rgba(231,76,60,0.2);
-    border-radius: 10px;
-    padding: 14px 18px;
-    font-size: 0.78rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-  .disclaimer-box strong { color: var(--red); }
-
-  /* EMPTY STATE */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--muted);
-  }
-  .empty-icon { font-size: 3rem; margin-bottom: 12px; }
-
-  /* ANIMATIONS */
-  @keyframes fadeUp {
-    from { opacity:0; transform:translateY(16px); }
-    to { opacity:1; transform:translateY(0); }
-  }
-  @keyframes pulse {
-    0%,100% { opacity:1; transform:scale(1); }
-    50% { opacity:0.4; transform:scale(0.8); }
-  }
-
-  /* TOAST */
-  .toast {
-    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
-    background:var(--gold); color:#000;
-    padding:10px 24px; border-radius:50px;
-    font-weight:600; font-size:0.85rem;
-    z-index:9999; opacity:0;
-    transition: opacity 0.3s;
-    pointer-events:none;
-  }
-  .toast.show { opacity:1; }
-
-  /* SPAN FULL */
-  .full-width { grid-column: 1 / -1; }
-
-  .section-divider {
-    max-width: 1100px;
-    margin: 0 auto 24px;
-    padding: 0 24px;
-    display: flex; align-items: center; gap: 16px;
-  }
-  .section-divider h2 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    letter-spacing: 3px;
-    white-space: nowrap;
-  }
-  .divider-line { flex:1; height:1px; background:var(--border); }
-
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
-  #demoBanner {
-    display: none;
-    position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, #E74C3C, #C0392B);
-    color: #fff;
-    padding: 14px 28px;
-    border-radius: 50px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    letter-spacing: 2px;
-    z-index: 999;
-    box-shadow: 0 8px 32px rgba(231,76,60,0.4);
-    cursor: pointer;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .period-info {
-    background: var(--dark3);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-bottom: 16px;
-    display: flex; gap: 8px; align-items: center;
-  }
-  .period-info span { color: var(--gold); font-family: 'Space Mono', monospace; }
+:root{--gold:#F5C842;--gold2:#E8A020;--dark:#0A0A0F;--dark2:#12121A;--dark3:#1A1A28;--card:#16161F;--border:rgba(245,200,66,0.15);--text:#E8E8F0;--muted:#6B6B85;--green:#2ECC71;--red:#E74C3C;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(245,200,66,0.08) 0%,transparent 60%);pointer-events:none;}
+#lockOverlay{position:fixed;inset:0;z-index:1000;background:rgba(10,10,15,0.97);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);}
+.lock-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 32px;max-width:420px;width:90%;text-align:center;box-shadow:0 0 60px rgba(245,200,66,0.08);}
+.lock-box h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);letter-spacing:2px;margin-bottom:8px;}
+.lock-box p{color:var(--muted);margin-bottom:20px;font-size:0.88rem;line-height:1.6;}
+.price-badge{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-family:'Space Mono',monospace;font-weight:700;font-size:1.4rem;padding:10px 28px;border-radius:50px;display:inline-block;margin-bottom:20px;}
+.wallet-section{background:var(--dark3);border-radius:12px;padding:14px;margin-bottom:16px;text-align:left;}
+.wallet-label{font-size:0.72rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;}
+.wallet-addr{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--gold);word-break:break-all;line-height:1.5;}
+.copy-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;font-size:0.75rem;cursor:pointer;margin-top:8px;transition:all 0.2s;}
+.verify-input{width:100%;background:var(--dark2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Space Mono',monospace;font-size:0.85rem;margin-bottom:12px;outline:none;transition:border-color 0.2s;}
+.verify-input:focus{border-color:var(--gold);}
+.unlock-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:14px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;cursor:pointer;}
+.demo-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:10px 20px;border-radius:8px;cursor:pointer;font-size:0.85rem;margin-top:10px;width:100%;}
+#app{position:relative;z-index:1;display:none;}
+header{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,15,0.92);backdrop-filter:blur(12px);z-index:100;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:3px;}
+.logo span{color:var(--gold);}
+.badge-live{background:rgba(46,204,113,0.15);color:var(--green);border:1px solid rgba(46,204,113,0.3);padding:4px 12px;border-radius:20px;font-size:0.7rem;font-family:'Space Mono',monospace;display:flex;align-items:center;gap:6px;}
+.dot-live{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;}
+.hero{padding:40px 24px 30px;text-align:center;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,8vw,5rem);line-height:0.95;letter-spacing:2px;margin-bottom:12px;}
+.hero-title .accent{color:var(--gold);}
+.hero-sub{color:var(--muted);font-size:0.95rem;max-width:480px;margin:0 auto 30px;line-height:1.6;}
+.main-grid{max-width:1000px;margin:0 auto;padding:0 20px 60px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:768px){.main-grid{grid-template-columns:1fr;}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.4;}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:var(--gold);margin-bottom:14px;}
+.chance-tabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
+.chance-tab{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.chance-tab.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:600;}
+.input-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px;}
+.num-input{background:var(--dark2);border:1px solid var(--border);border-radius:8px;padding:8px 4px;text-align:center;color:var(--text);font-family:'Space Mono',monospace;font-size:0.9rem;font-weight:700;outline:none;width:100%;}
+.num-input:focus{border-color:var(--gold);}
+.row-label{font-size:0.65rem;color:var(--muted);margin-bottom:3px;font-family:'Space Mono',monospace;}
+.analyze-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:13px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;cursor:pointer;margin-top:6px;}
+.results-card{grid-column:1/-1;}
+.hot-numbers{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:16px 0;}
+.hot-num{background:linear-gradient(135deg,var(--dark3),var(--dark2));border:2px solid var(--gold);border-radius:14px;padding:16px 22px;text-align:center;position:relative;min-width:110px;}
+.hot-num-label{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+.rank-badge{position:absolute;top:-10px;right:-10px;background:var(--gold);color:#000;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;}
+.freq-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.freq-num{font-family:'Space Mono',monospace;font-size:0.78rem;width:36px;color:var(--text);}
+.freq-bar-wrap{flex:1;background:var(--dark2);border-radius:4px;height:18px;overflow:hidden;}
+.freq-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width 0.8s ease;width:0%;}
+.freq-count{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);width:20px;text-align:right;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.stat-box{background:var(--dark2);border-radius:10px;padding:12px;text-align:center;}
+.stat-val{font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:var(--gold);}
+.stat-lbl{font-size:0.68rem;color:var(--muted);margin-top:3px;}
+.disclaimer{max-width:1000px;margin:0 auto 40px;padding:0 20px;}
+.disclaimer-box{background:rgba(231,76,60,0.06);border:1px solid rgba(231,76,60,0.2);border-radius:10px;padding:12px 16px;font-size:0.76rem;color:var(--muted);line-height:1.6;}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty-icon{font-size:2.5rem;margin-bottom:10px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:10px 22px;border-radius:50px;font-weight:600;font-size:0.83rem;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.toast.show{opacity:1;}
+#demoBanner{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#E74C3C,#C0392B);color:#fff;padding:14px 28px;border-radius:50px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;z-index:999;box-shadow:0 8px 32px rgba(231,76,60,0.5);cursor:pointer;white-space:nowrap;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.8);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
 
-<!-- LOCK OVERLAY -->
 <div id="lockOverlay">
   <div class="lock-box">
-    <div class="lock-icon">🔐</div>
+    <div style="font-size:42px;margin-bottom:14px;">🔐</div>
     <h2>CHANCE IA</h2>
-    <p>Análisis estadístico avanzado de frecuencias para los chances de Colombia. Acceso de por vida con un único pago.</p>
+    <p>Análisis estadístico de frecuencias para los chances de Colombia. Acceso de por vida con un único pago.</p>
     <div class="price-badge">15 USDT — Pago único</div>
     <div class="wallet-section">
       <div class="wallet-label">Envía USDT (TRC-20) a esta dirección:</div>
       <div class="wallet-addr" id="walletAddr">TYzJ4hQ47aqHvg7MRmpfXhbvYkhyMXMLLS</div>
       <button class="copy-btn" onclick="copyWallet()">📋 Copiar dirección</button>
     </div>
-
-    <p style="font-size:0.78rem; color:var(--muted); margin-bottom:16px;">Después de pagar, escríbeme al WhatsApp o Telegram con tu comprobante y te doy el código de acceso.</p>
-    <div class="verify-section">
-      <input class="verify-input" type="text" id="accessCode" placeholder="Ingresa tu código de acceso…">
-      <button class="unlock-btn" onclick="verifyCode()">DESBLOQUEAR ACCESO</button>
-    </div>
-    <p class="lock-note">¿Quieres ver cómo funciona primero?</p>
-    <button class="demo-btn" onclick="demoMode()">Ver demo con datos de ejemplo</button>
+    <p style="font-size:0.76rem;color:var(--muted);margin-bottom:14px;">Después de pagar escríbeme por WhatsApp con tu comprobante y te envío el código.</p>
+    <input class="verify-input" type="text" id="accessCode" placeholder="Ingresa tu código de acceso...">
+    <button class="unlock-btn" onclick="verifyCode()">DESBLOQUEAR ACCESO</button>
+    <button class="demo-btn" onclick="demoMode()">Ver demo (números bloqueados)</button>
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="app">
   <header>
     <div class="logo">CHANCE<span>IA</span></div>
-    <div style="display:flex;gap:12px;align-items:center">
-      <div class="badge-live"><span class="dot-live"></span> ACTIVO</div>
-      <div style="font-size:0.75rem;color:var(--muted);font-family:'Space Mono',monospace" id="headerChance">—</div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="badge-live"><span class="dot-live"></span>ACTIVO</div>
+      <div style="font-size:0.72rem;color:var(--muted);font-family:'Space Mono',monospace;" id="headerChance"></div>
     </div>
   </header>
 
   <div class="hero">
     <div class="hero-title">ANÁLISIS<br><span class="accent">ESTADÍSTICO</span><br>DEL CHANCE</div>
-    <p class="hero-sub">Ingresa los últimos 30 sorteos y obtén los 5 números más frecuentes para jugar los próximos 30 días.</p>
-  </div>
-
-  <!-- INPUT SECTION -->
-  <div class="section-divider">
-    <div class="divider-line"></div>
-    <h2>1 — SELECCIONA Y REGISTRA</h2>
-    <div class="divider-line"></div>
+    <p class="hero-sub">Ingresa los últimos 30 sorteos y obtén 5 números mixtos con 3 dígitos calientes y 2 fríos por número.</p>
   </div>
 
   <div class="main-grid">
-    <!-- CHANCE SELECTOR -->
     <div class="card">
-      <div class="card-title">🎰 Chance</div>
-      <div class="chance-tabs">
+      <div class="card-title">🎰 Selecciona el Chance</div>
+      <div class="chance-tabs" id="chanceTabs">
         <button class="chance-tab active" onclick="selectChance(this,'Dorado Mañana')">Dorado Mañana</button>
         <button class="chance-tab" onclick="selectChance(this,'Dorado Tarde')">Dorado Tarde</button>
         <button class="chance-tab" onclick="selectChance(this,'Dorado Noche')">Dorado Noche</button>
-        <button class="chance-tab" onclick="selectChance(this,'Sinuano Día')">Sinuano Día</button>
+        <button class="chance-tab" onclick="selectChance(this,'Sinuano Dia')">Sinuano Día</button>
         <button class="chance-tab" onclick="selectChance(this,'Sinuano Noche')">Sinuano Noche</button>
-        <button class="chance-tab" onclick="selectChance(this,'Caribeña Día')">Caribeña Día</button>
-        <button class="chance-tab" onclick="selectChance(this,'Caribeña Noche')">Caribeña Noche</button>
+        <button class="chance-tab" onclick="selectChance(this,'Caribena Dia')">Caribeña Día</button>
+        <button class="chance-tab" onclick="selectChance(this,'Caribena Noche')">Caribeña Noche</button>
         <button class="chance-tab" onclick="selectChance(this,'Pijao de Oro')">Pijao de Oro</button>
-        <button class="chance-tab" onclick="selectChance(this,'Chontico Día')">Chontico Día</button>
+        <button class="chance-tab" onclick="selectChance(this,'Chontico Dia')">Chontico Día</button>
         <button class="chance-tab" onclick="selectChance(this,'Chontico Noche')">Chontico Noche</button>
         <button class="chance-tab" onclick="selectChance(this,'Culona')">Culona</button>
         <button class="chance-tab" onclick="selectChance(this,'Baloto')">Baloto</button>
       </div>
-      <div class="period-info">📅 Analizando: <span id="chanceName">Dorado Mañana</span> — últimos 30 sorteos</div>
-      <p style="font-size:0.8rem;color:var(--muted);">Selecciona el chance y llena los 30 resultados a la derecha →</p>
+      <div style="background:var(--dark3);border-radius:8px;padding:10px 12px;font-size:0.76rem;color:var(--muted);">
+        Analizando: <span id="chanceName" style="color:var(--gold);font-family:'Space Mono',monospace;">Dorado Mañana</span>
+      </div>
     </div>
 
-    <!-- INPUT SORTEOS -->
     <div class="card">
       <div class="card-title">📝 Últimos 30 sorteos</div>
-      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px;">Ingresa solo las 4 cifras de cada resultado (ej: 3847)</p>
+      <p style="font-size:0.76rem;color:var(--muted);margin-bottom:12px;">Ingresa las 4 cifras de cada sorteo (ej: 3847)</p>
       <div id="inputGrid" class="input-grid"></div>
       <button class="analyze-btn" onclick="analyze()">🔥 ANALIZAR AHORA</button>
-      <button onclick="fillDemo()" style="width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);padding:10px;border-radius:8px;margin-top:8px;cursor:pointer;font-size:0.82rem;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Llenar con datos de ejemplo</button>
+      <button onclick="fillDemo()" style="width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px;border-radius:8px;margin-top:7px;cursor:pointer;font-size:0.8rem;">Llenar con datos de ejemplo</button>
     </div>
 
-    <!-- RESULTS -->
     <div class="card results-card" id="resultsCard">
-      <div class="card-title">🔥 Resultados del Análisis</div>
+      <div class="card-title">🔥 Resultados</div>
       <div id="resultsContent">
         <div class="empty-state">
           <div class="empty-icon">📊</div>
-          <p>Ingresa los 30 sorteos y presiona <strong>Analizar</strong></p>
+          <p>Ingresa los 30 sorteos y presiona Analizar</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- DISCLAIMER -->
   <div class="disclaimer">
     <div class="disclaimer-box">
-      <strong>⚠️ Aviso importante:</strong> Esta herramienta realiza únicamente <strong>análisis estadístico de frecuencias históricas</strong>. Los resultados de la lotería son eventos de azar independientes. El análisis de números calientes o fríos <strong>no garantiza ni predice</strong> resultados futuros. Juega con responsabilidad.
+      <strong style="color:var(--red);">⚠️ Aviso:</strong> Esta herramienta realiza análisis estadístico de frecuencias históricas. La lotería es azar puro — el análisis no garantiza ni predice resultados. Juega con responsabilidad.
     </div>
   </div>
 </div>
 
+<div id="demoBanner" onclick="volverAPago()">🔒 NÚMEROS BLOQUEADOS — Toca para comprar acceso completo</div>
 <div class="toast" id="toast"></div>
-<div id="demoBanner" onclick="document.getElementById('lockOverlay').style.display='flex';document.getElementById('app').style.display='none';isDemo=false;">🔒 NÚMEROS BLOQUEADOS — Toca aquí para comprar acceso</div>
 
 <script>
-  // === CONFIG ===
-  const ACCESS_CODES = ['CHANCE2024', 'CHANCEIA1', 'DEMO123']; // Cambia por tus códigos reales
-  const WALLET_TRC20 = 'TYzJ4hQ47aqHvg7MRmpfXhbvYkhyMXMLLS';
+var ACCESS_CODES = ['CHANCE2024', 'CHANCEIA1', 'DEMO123'];
+var WALLET = 'TYzJ4hQ47aqHvg7MRmpfXhbvYkhyMXMLLS';
+var currentChance = 'Dorado Manana';
+var modoDemo = false;
 
-  let currentChance = 'Dorado Mañana';
-
-  // === LOCK ===
-  function verifyCode() {
-    const code = document.getElementById('accessCode').value.trim().toUpperCase();
-    if (ACCESS_CODES.includes(code)) {
-      document.getElementById('lockOverlay').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      showToast('✅ Acceso desbloqueado. ¡Bienvenido!');
-    } else {
-      showToast('❌ Código incorrecto. Verifica tu pago.');
-      document.getElementById('accessCode').style.borderColor = 'var(--red)';
-      setTimeout(() => document.getElementById('accessCode').style.borderColor = 'var(--border)', 2000);
-    }
-  }
-
-  function demoMode() {
+function verifyCode() {
+  var code = document.getElementById('accessCode').value.trim().toUpperCase();
+  if (ACCESS_CODES.indexOf(code) >= 0) {
+    modoDemo = false;
     document.getElementById('lockOverlay').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    fillDemo();
-    analyze(true);
-    showToast('👀 Demo activo — números bloqueados');
+    showToast('Acceso desbloqueado. Bienvenido!');
+  } else {
+    showToast('Codigo incorrecto. Verifica tu pago.');
+  }
+}
+
+function demoMode() {
+  modoDemo = true;
+  document.getElementById('lockOverlay').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('demoBanner').style.display = 'block';
+  fillDemo();
+  analyze();
+  showToast('Demo activo - numeros bloqueados');
+}
+
+function volverAPago() {
+  modoDemo = false;
+  document.getElementById('demoBanner').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('lockOverlay').style.display = 'flex';
+}
+
+function copyWallet() {
+  navigator.clipboard.writeText(WALLET);
+  showToast('Direccion copiada');
+}
+
+function buildInputGrid() {
+  var grid = document.getElementById('inputGrid');
+  grid.innerHTML = '';
+  for (var i = 0; i < 30; i++) {
+    var wrap = document.createElement('div');
+    var lbl = document.createElement('div');
+    lbl.className = 'row-label';
+    lbl.textContent = 'S' + (i+1);
+    var inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'num-input';
+    inp.placeholder = '0000';
+    inp.id = 'sorteo' + i;
+    inp.setAttribute('maxlength', '4');
+    inp.oninput = function() { if(this.value.length > 4) this.value = this.value.slice(0,4); };
+    wrap.appendChild(lbl);
+    wrap.appendChild(inp);
+    grid.appendChild(wrap);
+  }
+}
+
+function selectChance(btn, name) {
+  var tabs = document.querySelectorAll('.chance-tab');
+  for(var i=0;i<tabs.length;i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  currentChance = name;
+  document.getElementById('chanceName').textContent = btn.textContent;
+  document.getElementById('headerChance').textContent = btn.textContent;
+  document.getElementById('resultsContent').innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><p>Ingresa los 30 sorteos y presiona Analizar</p></div>';
+}
+
+function fillDemo() {
+  var demo = ['1234','5678','9012','3456','7890','2345','6789','4567','8901','1357',
+              '2468','3579','4680','5791','6802','7913','8024','9135','1111','2222',
+              '3333','4444','5555','6666','7777','8888','9999','1122','3344','5566'];
+  for(var i=0;i<30;i++) {
+    var el = document.getElementById('sorteo'+i);
+    if(el) el.value = demo[i];
+  }
+}
+
+function analyze() {
+  var numbers = [];
+  for(var i=0;i<30;i++) {
+    var el = document.getElementById('sorteo'+i);
+    if(!el) continue;
+    var val = el.value.trim();
+    if(val && val.length === 4 && !isNaN(val)) numbers.push(val);
+  }
+  if(numbers.length < 10) { showToast('Ingresa al menos 10 sorteos'); return; }
+
+  // Frecuencia por posicion
+  var posFreq = [{},{},{},{}];
+  var fullFreq = {};
+  for(var d=0;d<=9;d++) {
+    posFreq[0][d]=0; posFreq[1][d]=0; posFreq[2][d]=0; posFreq[3][d]=0;
+  }
+  numbers.forEach(function(n) {
+    for(var p=0;p<4;p++) posFreq[p][parseInt(n[p])]++;
+    fullFreq[n] = (fullFreq[n]||0)+1;
+  });
+
+  // Hot y cold por posicion
+  var hotByPos = [], coldByPos = [];
+  for(var p=0;p<4;p++) {
+    var entries = Object.keys(posFreq[p]).map(function(k){ return [k, posFreq[p][k]]; });
+    entries.sort(function(a,b){ return b[1]-a[1]; });
+    hotByPos.push(entries.map(function(e){ return e[0]; }));
+    entries.sort(function(a,b){ return a[1]-b[1]; });
+    coldByPos.push(entries.map(function(e){ return e[0]; }));
   }
 
-  function copyWallet() {
-    navigator.clipboard.writeText(WALLET_TRC20);
-    showToast('📋 Dirección copiada');
-  }
+  // 5 mascaras: cuales 2 posiciones son frias
+  var masks = [[2,3],[0,3],[1,2],[0,2],[1,3]];
+  var final5 = [];
+  var usados = {};
 
-  // === BUILD INPUT GRID ===
-  function buildInputGrid() {
-    const grid = document.getElementById('inputGrid');
-    grid.innerHTML = '';
-    for (let i = 0; i < 30; i++) {
-      const wrap = document.createElement('div');
-      const lbl = document.createElement('div');
-      lbl.className = 'row-label';
-      lbl.textContent = `S${i+1}`;
-      const inp = document.createElement('input');
-      inp.type = 'number';
-      inp.className = 'num-input';
-      inp.placeholder = '0000';
-      inp.maxLength = 4;
-      inp.id = `s${i}`;
-      inp.addEventListener('input', function() {
-        if (this.value.length > 4) this.value = this.value.slice(0,4);
-      });
-      wrap.appendChild(lbl);
-      wrap.appendChild(inp);
-      grid.appendChild(wrap);
+  masks.forEach(function(mask) {
+    var num = '';
+    var breakdown = [];
+    for(var p=0;p<4;p++) {
+      var esFrio = mask.indexOf(p) >= 0;
+      var digito = esFrio ? coldByPos[p][0] : hotByPos[p][0];
+      num += digito;
+      breakdown.push({digit: digito, type: esFrio ? 'cold' : 'hot', freq: posFreq[p][parseInt(digito)]});
     }
-  }
-
-  function selectChance(btn, name) {
-    document.querySelectorAll('.chance-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentChance = name;
-    document.getElementById('chanceName').textContent = name;
-    document.getElementById('headerChance').textContent = name;
-    // Reset results
-    document.getElementById('resultsContent').innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><p>Ingresa los 30 sorteos y presiona <strong>Analizar</strong></p></div>`;
-  }
-
-  // === DEMO DATA ===
-  function fillDemo() {
-    const demo = [1234,5678,9012,3456,7890,2345,6789,0123,4567,8901,
-                  1357,2468,3579,4680,5791,6802,7913,8024,9135,0246,
-                  1111,2222,3333,4444,5555,6666,7777,8888,9999,1234];
-    for(let i=0;i<30;i++) {
-      const el = document.getElementById(`s${i}`);
-      if(el) el.value = String(demo[i]).padStart(4,'0');
-    }
-  }
-
-  // === ANALYZE ===
-  function analyze(isDemo) {
-    isDemo = isDemo || false;
-    const numbers = [];
-    for (let i = 0; i < 30; i++) {
-      const val = document.getElementById(`s${i}`)?.value?.trim();
-      if (val && val.length === 4 && !isNaN(val)) numbers.push(val.padStart(4,'0'));
-    }
-    if (numbers.length < 10) { showToast('⚠️ Ingresa al menos 10 sorteos para analizar'); return; }
-
-    const pos = [[],[],[],[]];
-    const fullFreq = {};
-    numbers.forEach(n => {
-      for(let p=0;p<4;p++) pos[p].push(n[p]);
-      fullFreq[n] = (fullFreq[n]||0)+1;
-    });
-
-    // Frequency of each digit (0-9) per position
-    const posFreq = pos.map(arr => {
-      const f = {};
-      for(let d=0;d<=9;d++) f[String(d)]=0;
-      arr.forEach(d => f[d]=(f[d]||0)+1);
-      return f;
-    });
-
-    // Per position: sorted hot (desc) and cold (asc)
-    const hotByPos = posFreq.map(f => Object.entries(f).sort((a,b)=>b[1]-a[1]).map(e=>e[0]));
-    const coldByPos = posFreq.map(f => Object.entries(f).sort((a,b)=>a[1]-b[1]).map(e=>e[0]));
-
-    // MIXED combinations: each number has exactly 3 hot digits + 2 cold digits
-    // The 3 hot positions and 2 cold positions vary across the 5 numbers
-    // 5 different position masks: which 2 positions are cold
-    const coldMasks = [
-      [2,3], // pos 0,1 hot — pos 2,3 cold
-      [0,3], // pos 1,2 hot — pos 0,3 cold
-      [1,2], // pos 0,3 hot — pos 1,2 cold
-      [0,2], // pos 1,3 hot — pos 0,2 cold
-      [1,3], // pos 0,2 hot — pos 1,3 cold
-    ];
-
-    const final5 = [];
-    const usedNums = new Set();
-
-    for(let mask of coldMasks) {
-      // Build best number: for each position pick best hot or cold digit not creating duplicate number
-      let bestNum = null;
-      // Try top digits for each position
-      for(let hi=0; hi<5 && !bestNum; hi++) {
-        let num = '';
-        for(let p=0;p<4;p++) {
-          if(mask.includes(p)) {
-            // cold position — pick top cold digit
-            num += coldByPos[p][Math.min(hi, coldByPos[p].length-1)];
-          } else {
-            // hot position — pick top hot digit
-            num += hotByPos[p][Math.min(hi, hotByPos[p].length-1)];
-          }
-        }
-        if(!usedNums.has(num)) { bestNum = num; usedNums.add(num); }
+    // Evitar repetidos
+    var intento = 0;
+    while(usados[num] && intento < 20) {
+      num = '';
+      for(var p=0;p<4;p++) {
+        var esFrio = mask.indexOf(p) >= 0;
+        var idx = Math.min(intento, (esFrio ? coldByPos[p] : hotByPos[p]).length-1);
+        var digito = esFrio ? coldByPos[p][idx] : hotByPos[p][Math.min(intento, hotByPos[p].length-1)];
+        num += digito;
       }
-      if(!bestNum) {
-        // fallback: generate unique combo
-        let num = '';
-        for(let p=0;p<4;p++) num += mask.includes(p) ? coldByPos[p][0] : hotByPos[p][0];
-        let suffix = 0;
-        while(usedNums.has(num) && suffix < 100) { num = String(parseInt(num)+1).padStart(4,'0'); suffix++; }
-        usedNums.add(num); bestNum = num;
-      }
-
-      // Score = sum of positional freq of each digit
-      let score = 0;
-      for(let p=0;p<4;p++) score += (posFreq[p][bestNum[p]]||0);
-
-      // Build digit breakdown
-      const breakdown = [];
-      for(let p=0;p<4;p++) {
-        breakdown.push({ digit: bestNum[p], type: mask.includes(p) ? 'cold' : 'hot', freq: posFreq[p][bestNum[p]]||0 });
-      }
-      final5.push({ num: bestNum, score, breakdown, mask });
+      intento++;
     }
+    usados[num] = true;
+    final5.push({num: num, breakdown: breakdown});
+  });
 
-    // === PATTERN ANALYSIS ===
-    const patterns = detectPatterns(numbers, posFreq, fullFreq);
-    const topRepeated = Object.entries(fullFreq).sort((a,b)=>b[1]-a[1]).slice(0,10);
-    renderResults(final5, topRepeated, numbers, posFreq, patterns, numbers.length, isDemo);
-  }
+  // Patrones
+  var patterns = detectPatterns(numbers, posFreq, fullFreq);
+  var topRepeated = Object.keys(fullFreq).map(function(k){ return [k, fullFreq[k]]; });
+  topRepeated.sort(function(a,b){ return b[1]-a[1]; });
+  topRepeated = topRepeated.slice(0,10);
 
-  // === PATTERN DETECTION ===
-  function detectPatterns(numbers, posFreq, fullFreq) {
-    const patterns = [];
+  renderResults(final5, topRepeated, numbers, posFreq, patterns);
+}
 
-    // 1. Consecutive numbers pattern (e.g. 1234, 2345)
-    let consecCount = 0;
-    numbers.forEach(n => {
-      let isConsec = true;
-      for(let p=1;p<4;p++) if(parseInt(n[p]) !== parseInt(n[p-1])+1) { isConsec=false; break; }
-      if(isConsec) consecCount++;
-    });
-    if(consecCount > 0) patterns.push({ icon:'📈', label:'Consecutivos ascendentes', desc:`${consecCount} número(s) con dígitos en secuencia creciente (ej: 1234, 5678)`, count: consecCount });
+function detectPatterns(numbers, posFreq, fullFreq) {
+  var patterns = [];
+  var consecCount = 0;
+  numbers.forEach(function(n) {
+    var ok = true;
+    for(var p=1;p<4;p++) if(parseInt(n[p]) !== parseInt(n[p-1])+1) { ok=false; break; }
+    if(ok) consecCount++;
+  });
+  if(consecCount>0) patterns.push({icon:'📈',label:'Consecutivos ascendentes',desc:consecCount+' sorteos con digitos en secuencia (ej: 1234, 5678)',count:consecCount});
 
-    // 2. Repeated digit pattern (e.g. 1111, 2222, 1122)
-    let doubleCount=0, tripleCount=0, quadCount=0;
-    numbers.forEach(n => {
-      const digits = n.split('');
-      const unique = new Set(digits).size;
-      if(unique===1) quadCount++;
-      else if(unique===2) doubleCount++;
-      else if(unique===3) tripleCount++;
-    });
-    if(quadCount>0) patterns.push({ icon:'💎', label:'Dígito cuádruple', desc:`${quadCount} número(s) con el mismo dígito 4 veces (ej: 1111, 7777)`, count: quadCount });
-    if(doubleCount>0) patterns.push({ icon:'👥', label:'Pares dobles', desc:`${doubleCount} número(s) con solo 2 dígitos distintos (ej: 1122, 3344)`, count: doubleCount });
+  var quadCount=0, doubleCount=0;
+  numbers.forEach(function(n) {
+    var u = new Set(n.split('')).size;
+    if(u===1) quadCount++;
+    else if(u===2) doubleCount++;
+  });
+  if(quadCount>0) patterns.push({icon:'💎',label:'Digito cuadruple',desc:quadCount+' sorteos con mismo digito x4 (ej: 1111, 7777)',count:quadCount});
+  if(doubleCount>0) patterns.push({icon:'👥',label:'Pares dobles',desc:doubleCount+' sorteos con solo 2 digitos distintos (ej: 1122)',count:doubleCount});
 
-    // 3. Mirror pattern (palindrome: 1221, 3443)
-    let mirrorCount = numbers.filter(n => n[0]===n[3] && n[1]===n[2]).length;
-    if(mirrorCount>0) patterns.push({ icon:'🪞', label:'Espejo (palíndromo)', desc:`${mirrorCount} número(s) que se leen igual al derecho y al revés (ej: 1221, 3443)`, count: mirrorCount });
+  var mirrorCount = numbers.filter(function(n){ return n[0]===n[3] && n[1]===n[2]; }).length;
+  if(mirrorCount>0) patterns.push({icon:'🪞',label:'Espejo (palindromo)',desc:mirrorCount+' sorteos que se leen igual al derecho y al reves',count:mirrorCount});
 
-    // 4. Even/odd dominance
-    let allEven=0, allOdd=0, evenDom=0, oddDom=0;
-    numbers.forEach(n => {
-      const evens = n.split('').filter(d=>parseInt(d)%2===0).length;
-      const odds = 4 - evens;
-      if(evens===4) allEven++;
-      else if(odds===4) allOdd++;
-      else if(evens>=3) evenDom++;
-      else if(odds>=3) oddDom++;
-    });
-    if(allEven+evenDom>2) patterns.push({ icon:'⚡', label:'Dominancia pares', desc:`${allEven+evenDom} número(s) con mayoría de dígitos pares (0,2,4,6,8)`, count: allEven+evenDom });
-    if(allOdd+oddDom>2) patterns.push({ icon:'🔱', label:'Dominancia impares', desc:`${allOdd+oddDom} número(s) con mayoría de dígitos impares (1,3,5,7,9)`, count: allOdd+oddDom });
+  var sums = numbers.map(function(n){ return n.split('').reduce(function(a,d){ return a+parseInt(d); },0); });
+  var avgSum = Math.round(sums.reduce(function(a,b){ return a+b; },0)/sums.length);
+  patterns.push({icon:'➕',label:'Suma promedio de digitos',desc:'La suma promedio de los 4 digitos es '+avgSum,count:avgSum,isStat:true});
 
-    // 5. Sum pattern
-    const sums = numbers.map(n => n.split('').reduce((a,d)=>a+parseInt(d),0));
-    const avgSum = Math.round(sums.reduce((a,b)=>a+b,0)/sums.length);
-    const lowSum = sums.filter(s=>s<=10).length;
-    const highSum = sums.filter(s=>s>=25).length;
-    if(lowSum>3) patterns.push({ icon:'🔻', label:'Suma baja frecuente', desc:`${lowSum} números con suma de dígitos ≤10. Suma promedio: ${avgSum}`, count: lowSum });
-    if(highSum>3) patterns.push({ icon:'🔺', label:'Suma alta frecuente', desc:`${highSum} números con suma de dígitos ≥25. Suma promedio: ${avgSum}`, count: highSum });
-    patterns.push({ icon:'➕', label:'Suma promedio de dígitos', desc:`La suma promedio de los 4 dígitos en los últimos sorteos es ${avgSum}`, count: avgSum, isStat: true });
+  var lastDigits = {};
+  numbers.forEach(function(n){ var d=n[3]; lastDigits[d]=(lastDigits[d]||0)+1; });
+  var topLast = Object.keys(lastDigits).map(function(k){ return [k,lastDigits[k]]; }).sort(function(a,b){ return b[1]-a[1]; })[0];
+  if(topLast && topLast[1]>3) patterns.push({icon:'🔚',label:'Ultimo digito "'+topLast[0]+'" dominante',desc:'El digito '+topLast[0]+' aparecio '+topLast[1]+' veces en la ultima posicion',count:topLast[1]});
 
-    // 6. Decade dominance (which tens appear most: 0-9, 10-19, 20-29...)
-    const decades = {};
-    numbers.forEach(n => { const d = Math.floor(parseInt(n)/10)*10; decades[d]=(decades[d]||0)+1; });
-    const topDecade = Object.entries(decades).sort((a,b)=>b[1]-a[1])[0];
-    if(topDecade) patterns.push({ icon:'🎯', label:'Rango más frecuente', desc:`Los números entre ${topDecade[0]} y ${parseInt(topDecade[0])+9} han aparecido ${topDecade[1]} veces`, count: topDecade[1], isStat: true });
+  return patterns;
+}
 
-    // 7. Last digit pattern
-    const lastDigits = {};
-    numbers.forEach(n => { const d=n[3]; lastDigits[d]=(lastDigits[d]||0)+1; });
-    const topLast = Object.entries(lastDigits).sort((a,b)=>b[1]-a[1])[0];
-    if(topLast && topLast[1]>3) patterns.push({ icon:'🔚', label:`Último dígito "${topLast[0]}" dominante`, desc:`El dígito ${topLast[0]} ha aparecido en la última posición ${topLast[1]} veces`, count: topLast[1] });
+function renderResults(final5, topRepeated, numbers, posFreq, patterns) {
+  var html = '';
 
-    return patterns;
-  }
+  // SECCION PRINCIPAL - 5 numeros listos para jugar
+  html += '<div style="background:linear-gradient(135deg,rgba(245,200,66,0.1),rgba(232,160,32,0.05));border:2px solid rgba(245,200,66,0.4);border-radius:16px;padding:20px;margin-bottom:20px;text-align:center;">';
+  html += '<div style="font-family:Bebas Neue,sans-serif;font-size:1.4rem;letter-spacing:3px;color:#F5C842;margin-bottom:4px;">🎰 JUEGA ESTOS 5 NÚMEROS</div>';
+  html += '<div style="font-size:0.72rem;color:#6B6B85;margin-bottom:16px;">Validos para los proximos 30 dias • No se repiten entre si</div>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">';
 
-  function renderResults(final5, topRepeated, numbers, posFreq, patterns, total, isDemo) {
-    isDemo = isDemo || false;
-    let html = `<div class="stats-row">
-      <div class="stat-box"><div class="stat-val">${total}</div><div class="stat-lbl">Sorteos analizados</div></div>
-      <div class="stat-box"><div class="stat-val">${new Set(numbers).size}</div><div class="stat-lbl">Números únicos</div></div>
-      <div class="stat-box"><div class="stat-val">🔥🔥🔥❄️❄️</div><div class="stat-lbl">Mezcla por número</div></div>
-    </div>`;
-
-    // === JUEGA ESTOS 5 NÚMEROS — SECCIÓN PRINCIPAL ===
-    html += `<div style="background:linear-gradient(135deg,rgba(245,200,66,0.12),rgba(232,160,32,0.06));border:2px solid rgba(245,200,66,0.4);border-radius:16px;padding:20px;margin-bottom:20px;text-align:center;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--gold);margin-bottom:4px;">🎰 JUEGA ESTOS 5 NÚMEROS</div>
-      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:16px;">Válidos para los próximos 30 días • No se repiten entre sí</div>
-      <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">`;
-    final5.forEach(({num}, i) => {
-      const isDemo = isDemo;
-      if(isDemo) {
-        html += `<div style="background:var(--dark);border:2px solid #E74C3C;border-radius:12px;padding:14px 20px;text-align:center;">
-          <div style="font-size:0.65rem;color:var(--muted);margin-bottom:4px;">N° ${i+1}</div>
-          <div style="font-family:'Space Mono',monospace;font-size:2.4rem;font-weight:700;color:#E74C3C;letter-spacing:6px;">🔒????</div>
-        </div>`;
-      } else {
-        html += `<div style="background:var(--dark);border:2px solid var(--gold);border-radius:12px;padding:14px 20px;text-align:center;">
-          <div style="font-size:0.65rem;color:var(--muted);margin-bottom:4px;">N° ${i+1}</div>
-          <div style="font-family:'Space Mono',monospace;font-size:2.4rem;font-weight:700;color:var(--gold);letter-spacing:6px;">${num}</div>
-        </div>`;
-      }
-    });
-    const demoWarning = isDemo ? `<div style="margin-top:12px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:8px;padding:10px;font-size:0.78rem;color:#E74C3C;">🔒 Los números están bloqueados en modo demo. Paga 15 USDT para desbloquear el acceso completo.</div>` : '';
-    html += \`</div>
-      \${demoWarning}
-      <div style="margin-top:14px;font-size:0.72rem;color:var(--muted);">⬇️ Desplázate para ver el análisis detallado de cada número</div>
-    </div>\`;
-
-    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#F5C842;margin-bottom:8px;">🔍 DETALLE — Composición de cada número (3 dígitos 🔥 + 2 dígitos ❄️)</div>`;
-    html += `<p style="font-size:0.75rem;color:var(--muted);margin-bottom:16px;">Cada cifra está marcada: 🔥 caliente (más frecuente en esa posición) / ❄️ frío (menos frecuente)</p>`;
-    html += `<div class="hot-numbers">`;
-
-    final5.forEach(({num, score, breakdown}, i) => {
-      const isDemo = isDemo;
-      let digitHtml = '<div style="display:flex;gap:4px;justify-content:center;margin:8px 0;">';
-      breakdown.forEach(({digit, type, freq}) => {
-        const isHot = type==='hot';
-        const bg = isHot ? 'rgba(245,200,66,0.15)' : 'rgba(52,152,219,0.15)';
-        const border = isHot ? 'rgba(245,200,66,0.5)' : 'rgba(52,152,219,0.5)';
-        const color = isHot ? '#F5C842' : '#3498DB';
-        const icon = isHot ? '🔥' : '❄️';
-        const d = isDemo ? '?' : digit;
-        const blurStyle = isDemo ? 'filter:blur(4px);' : '';
-        digitHtml += `<div style="background:${bg};border:1px solid ${border};border-radius:6px;padding:4px 8px;text-align:center;">
-          <div style="font-size:0.6rem;color:${color};">${icon}</div>
-          <div class="digito-detalle" style="font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:${color};${blurStyle}">${d}</div>
-          <div style="font-size:0.55rem;color:var(--muted);">${isDemo ? '?' : freq}x</div>
-        </div>`;
-      });
-      digitHtml += '</div>';
-      if(isDemo) {
-        html += `<div class="hot-num" style="min-width:160px;padding:16px;border-color:#E74C3C;">
-          <div class="rank-badge" style="background:#E74C3C;">🔒</div>
-          <div class="hot-num-label">NÚMERO ${i+1}</div>
-          <div style="font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:#E74C3C;letter-spacing:4px;">????</div>
-          <div style="font-size:0.7rem;color:var(--muted);margin-top:8px;">Bloqueado</div>
-        </div>`;
-      } else {
-        html += `<div class="hot-num" style="min-width:160px;padding:16px;">
-          <div class="rank-badge">${i+1}</div>
-          <div class="hot-num-label">NÚMERO ${i+1}</div>
-          <div style="font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:var(--text);letter-spacing:4px;">${num}</div>
-          ${digitHtml}
-        </div>`;
-      }
-    });
-    html += `</div>`;
-
-    html += `<div style="background:rgba(245,200,66,0.05);border:1px solid rgba(245,200,66,0.15);border-radius:10px;padding:12px 16px;font-size:0.78rem;color:var(--muted);margin:12px 0;">
-      💡 <strong style="color:var(--text);">¿Por qué mezclar?</strong> Los 3 dígitos 🔥 aprovechan la tendencia estadística. Los 2 dígitos ❄️ cubren los que "le deben" una aparición. Cada número usa posiciones distintas para maximizar cobertura.
-    </div>`;
-
-    // PATTERN ANALYSIS
-    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">🧮 ANÁLISIS DE PATRONES</div>`;
-    html += `<div style="display:flex;flex-direction:column;gap:8px;">`;
-    patterns.forEach(p => {
-      const color = p.isStat ? '#9B59B6' : (p.count >= 5 ? '#E74C3C' : p.count >= 3 ? '#F5C842' : '#2ECC71');
-      html += `<div style="background:var(--dark2);border-left:3px solid ${color};border-radius:0 8px 8px 0;padding:10px 14px;display:flex;align-items:center;gap:12px;">
-        <div style="font-size:1.2rem;">${p.icon}</div>
-        <div style="flex:1;">
-          <div style="font-size:0.82rem;font-weight:600;color:var(--text);">${p.label}</div>
-          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">${p.desc}</div>
-        </div>
-        <div style="font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;color:${color};">${p.count}</div>
-      </div>`;
-    });
-    html += `</div>`;
-
-    // Digit freq per position
-    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">📊 FRECUENCIA POR POSICIÓN</div>`;
-    const posNames=['1ª','2ª','3ª','4ª'];
-    html += `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">`;
-    for(let p=0;p<4;p++) {
-      const entries=Object.entries(posFreq[p]).sort((a,b)=>b[1]-a[1]).slice(0,5);
-      const mxF=entries[0]?.[1]||1;
-      html+=`<div><div style="font-size:0.75rem;color:var(--gold);font-family:'Space Mono',monospace;margin-bottom:8px;">${posNames[p]} cifra</div>`;
-      entries.forEach(([digit,freq])=>{
-        const w=Math.round((freq/mxF)*100);
-        html+=`<div class="freq-row"><div class="freq-num">${digit}</div><div class="freq-bar-wrap"><div class="freq-bar" style="width:${w}%"></div></div><div class="freq-count">${freq}</div></div>`;
-      });
-      html+=`</div>`;
-    }
-    html+=`</div>`;
-
-    if(topRepeated.length>0 && topRepeated[0][1]>1){
-      html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--muted);margin:20px 0 12px;">🔄 NÚMEROS QUE SE REPITIERON</div><div style="display:flex;flex-wrap:wrap;gap:8px;">`;
-      topRepeated.filter(([,f])=>f>1).forEach(([num,freq])=>{
-        html+=`<div style="background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'Space Mono',monospace;font-size:0.85rem;">${num} <span style="color:var(--gold)">×${freq}</span></div>`;
-      });
-      html+=`</div>`;
-    }
-
-    document.getElementById('resultsContent').innerHTML = html;
-    document.getElementById('resultsCard').scrollIntoView({behavior:'smooth', block:'start'});
-    showToast('✅ 5 números mixtos + patrones detectados');
-  }
-
-  // === TOAST ===
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'),2800);
-  }
-
-  // === ACCESS CODE ON ENTER ===
-  document.addEventListener('keydown', e => {
-    if(e.key==='Enter') {
-      const overlay = document.getElementById('lockOverlay');
-      if(overlay.style.display!=='none') verifyCode();
+  final5.forEach(function(item, i) {
+    if(modoDemo) {
+      html += '<div style="background:#0A0A0F;border:2px solid #E74C3C;border-radius:12px;padding:14px 18px;text-align:center;">';
+      html += '<div style="font-size:0.62rem;color:#6B6B85;margin-bottom:4px;">N° '+(i+1)+'</div>';
+      html += '<div style="font-family:Space Mono,monospace;font-size:2rem;font-weight:700;color:#E74C3C;letter-spacing:4px;">🔒????</div>';
+      html += '</div>';
+    } else {
+      html += '<div style="background:#0A0A0F;border:2px solid #F5C842;border-radius:12px;padding:14px 18px;text-align:center;">';
+      html += '<div style="font-size:0.62rem;color:#6B6B85;margin-bottom:4px;">N° '+(i+1)+'</div>';
+      html += '<div style="font-family:Space Mono,monospace;font-size:2rem;font-weight:700;color:#F5C842;letter-spacing:4px;">'+item.num+'</div>';
+      html += '</div>';
     }
   });
 
-  // === INIT ===
-  buildInputGrid();
-  document.getElementById('headerChance').textContent = currentChance;
+  html += '</div>';
+  if(modoDemo) {
+    html += '<div style="margin-top:14px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:8px;padding:10px;font-size:0.78rem;color:#E74C3C;">🔒 Paga 15 USDT para ver los numeros reales</div>';
+  }
+  html += '<div style="margin-top:10px;font-size:0.7rem;color:#6B6B85;">Desplazate para ver el analisis detallado</div>';
+  html += '</div>';
+
+  // STATS
+  html += '<div class="stats-row">';
+  html += '<div class="stat-box"><div class="stat-val">'+numbers.length+'</div><div class="stat-lbl">Sorteos</div></div>';
+  html += '<div class="stat-box"><div class="stat-val">'+(new Set(numbers)).size+'</div><div class="stat-lbl">Unicos</div></div>';
+  html += '<div class="stat-box"><div class="stat-val">3🔥+2❄️</div><div class="stat-lbl">Por numero</div></div>';
+  html += '</div>';
+
+  // DETALLE POR NUMERO
+  html += '<div style="font-family:Bebas Neue,sans-serif;font-size:1rem;letter-spacing:2px;color:#F5C842;margin-bottom:8px;">🔍 COMPOSICION DE CADA NUMERO</div>';
+  html += '<div class="hot-numbers">';
+  final5.forEach(function(item, i) {
+    html += '<div class="hot-num">';
+    html += '<div class="rank-badge">'+(i+1)+'</div>';
+    html += '<div class="hot-num-label">NUMERO '+(i+1)+'</div>';
+    if(modoDemo) {
+      html += '<div style="font-family:Space Mono,monospace;font-size:1.6rem;font-weight:700;color:#E74C3C;">????</div>';
+      html += '<div style="font-size:0.65rem;color:#E74C3C;margin-top:6px;">🔒 Bloqueado</div>';
+    } else {
+      html += '<div style="font-family:Space Mono,monospace;font-size:1.6rem;font-weight:700;color:#E8E8F0;letter-spacing:3px;">'+item.num+'</div>';
+      html += '<div style="display:flex;gap:3px;justify-content:center;margin-top:8px;">';
+      item.breakdown.forEach(function(b) {
+        var isHot = b.type === 'hot';
+        var bg = isHot ? 'rgba(245,200,66,0.15)' : 'rgba(52,152,219,0.15)';
+        var color = isHot ? '#F5C842' : '#3498DB';
+        var icon = isHot ? '🔥' : '❄️';
+        html += '<div style="background:'+bg+';border-radius:5px;padding:3px 6px;text-align:center;">';
+        html += '<div style="font-size:0.55rem;color:'+color+';">'+icon+'</div>';
+        html += '<div style="font-family:Space Mono,monospace;font-size:1.1rem;font-weight:700;color:'+color+';">'+b.digit+'</div>';
+        html += '<div style="font-size:0.5rem;color:#6B6B85;">'+b.freq+'x</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // PATRONES
+  html += '<div style="font-family:Bebas Neue,sans-serif;font-size:1rem;letter-spacing:2px;color:#6B6B85;margin:20px 0 10px;">🧮 ANALISIS DE PATRONES</div>';
+  html += '<div style="display:flex;flex-direction:column;gap:7px;">';
+  patterns.forEach(function(p) {
+    var color = p.isStat ? '#9B59B6' : (p.count>=5 ? '#E74C3C' : p.count>=3 ? '#F5C842' : '#2ECC71');
+    html += '<div style="background:#12121A;border-left:3px solid '+color+';border-radius:0 8px 8px 0;padding:9px 12px;display:flex;align-items:center;gap:10px;">';
+    html += '<div style="font-size:1.1rem;">'+p.icon+'</div>';
+    html += '<div style="flex:1;"><div style="font-size:0.8rem;font-weight:600;color:#E8E8F0;">'+p.label+'</div>';
+    html += '<div style="font-size:0.7rem;color:#6B6B85;margin-top:2px;">'+p.desc+'</div></div>';
+    html += '<div style="font-family:Space Mono,monospace;font-size:0.95rem;font-weight:700;color:'+color+';">'+p.count+'</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // FRECUENCIA POR POSICION
+  html += '<div style="font-family:Bebas Neue,sans-serif;font-size:1rem;letter-spacing:2px;color:#6B6B85;margin:20px 0 10px;">📊 FRECUENCIA POR POSICION</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">';
+  ['1a','2a','3a','4a'].forEach(function(pos, p) {
+    var entries = Object.keys(posFreq[p]).map(function(k){ return [k, posFreq[p][k]]; });
+    entries.sort(function(a,b){ return b[1]-a[1]; });
+    entries = entries.slice(0,5);
+    var maxF = entries[0] ? entries[0][1] : 1;
+    html += '<div><div style="font-size:0.72rem;color:#F5C842;font-family:Space Mono,monospace;margin-bottom:7px;">'+pos+' cifra</div>';
+    entries.forEach(function(e) {
+      var w = Math.round((e[1]/maxF)*100);
+      html += '<div class="freq-row"><div class="freq-num">'+e[0]+'</div>';
+      html += '<div class="freq-bar-wrap"><div class="freq-bar" style="width:'+w+'%"></div></div>';
+      html += '<div class="freq-count">'+e[1]+'</div></div>';
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // NUMEROS REPETIDOS
+  var repeats = topRepeated.filter(function(x){ return x[1]>1; });
+  if(repeats.length>0) {
+    html += '<div style="font-family:Bebas Neue,sans-serif;font-size:1rem;letter-spacing:2px;color:#6B6B85;margin:20px 0 10px;">🔄 NUMEROS QUE SE REPITIERON</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:7px;">';
+    repeats.forEach(function(r) {
+      html += '<div style="background:#1A1A28;border:1px solid rgba(245,200,66,0.15);border-radius:7px;padding:7px 12px;font-family:Space Mono,monospace;font-size:0.82rem;">'+r[0]+' <span style="color:#F5C842;">x'+r[1]+'</span></div>';
+    });
+    html += '</div>';
+  }
+
+  document.getElementById('resultsContent').innerHTML = html;
+  document.getElementById('resultsCard').scrollIntoView({behavior:'smooth',block:'start'});
+  showToast(modoDemo ? 'Demo: numeros bloqueados' : 'Analisis completado!');
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+
+buildInputGrid();
+document.getElementById('headerChance').textContent = 'Dorado Manana';
 </script>
 </body>
 </html>
